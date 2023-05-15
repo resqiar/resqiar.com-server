@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"resdev-server/routes"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -13,9 +14,8 @@ func main() {
 
 	server := fiber.New()
 
-	server.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello World!")
-	})
+	// Init routes
+	routes.InitMainRoutes(server)
 
 	PORT := os.Getenv("PORT")
 	if err := server.Listen(":" + PORT); err != nil {
