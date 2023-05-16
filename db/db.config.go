@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"os"
+	"resdev-server/entities"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -27,4 +28,6 @@ func InitDB() {
 	if err != nil {
 		panic("Failed connecting to the database...")
 	}
+
+	DB.AutoMigrate(&entities.User{})
 }
