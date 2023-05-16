@@ -9,5 +9,6 @@ import (
 func InitAuthRoute(server *fiber.App) {
 	auth := server.Group("/auth")
 
-	auth.Post("/register", handlers.SendHelloWord)
+	auth.Get("/google", handlers.SendAuthGoogle)
+	auth.Get("/google/callback", handlers.SendGoogleCallback)
 }
