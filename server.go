@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"resdev-server/db"
 	"resdev-server/routes"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,6 +14,9 @@ func main() {
 	godotenv.Load()
 
 	server := fiber.New()
+
+	// Initialize database connection
+	db.InitDB()
 
 	// Init routes
 	routes.InitMainRoutes(server)
