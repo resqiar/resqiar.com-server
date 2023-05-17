@@ -21,6 +21,12 @@ func SendAuthGoogle(c *fiber.Ctx) error {
 }
 
 func SendGoogleCallback(c *fiber.Ctx) error {
+	// get session store for current context
+	sess, err := config.SessionStore.Get(c)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
 	conf := config.GoogleConfig()
 	code := c.Query("code")
 
@@ -35,6 +41,16 @@ func SendGoogleCallback(c *fiber.Ctx) error {
 
 	profile, err := services.ConvertToken(token.AccessToken)
 	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	// Store the user's data in the session
+	sess.Set("Name", profile.Name)
+	sess.Set("Email", profile.Email)
+
+	// Save into memory session and.
+	// saving also set a session cookie containing session_id
+	if err := sess.Save(); err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 

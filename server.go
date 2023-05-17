@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"resdev-server/config"
 	"resdev-server/db"
 	"resdev-server/routes"
 
@@ -17,6 +18,9 @@ func main() {
 
 	// Initialize database connection
 	db.InitDB()
+
+	// Initialize session
+	config.InitSession()
 
 	// Init routes
 	routes.InitMainRoutes(server)
