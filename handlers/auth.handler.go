@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"resdev-server/config"
+	"resdev-server/services"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -29,8 +30,16 @@ func SendGoogleCallback(c *fiber.Ctx) error {
 	// from respective provider.
 	token, err := conf.Exchange(c.Context(), code)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	return c.SendString(token.AccessToken)
+	profile, err := services.ConvertToken(token.AccessToken)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+		"Name":  profile.Name,
+		"Email": profile.Email,
+	})
 }

@@ -1,0 +1,8 @@
+[build]
+send_interrupt = true
+delay = 1000
+kill_delay = 500      # 500 ms
+
+[misc]
+# Delete tmp directory on exit
+clean_on_exit = true
