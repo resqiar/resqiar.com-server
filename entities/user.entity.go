@@ -17,7 +17,7 @@ type User struct {
 	ProviderID  string `gorm:"type:text"`        // ID provided by the third-party provider
 	AccessToken string `gorm:"type:text"`        // Access token obtained from the third-party provider
 
-	Username string `gorm:"type:varchar(48)"`
-	Email    string `gorm:"type:varchar(100)"`
+	Username string `gorm:"type:varchar(100); unique"`
+	Email    string `gorm:"type:varchar(100); unique"`
 	Bio      string `gorm:"type:text; nullable"`
 }
