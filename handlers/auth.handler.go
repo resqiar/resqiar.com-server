@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"log"
+	"os"
 	"resdev-server/config"
 	"resdev-server/services"
 
@@ -44,18 +46,40 @@ func SendGoogleCallback(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	// Store the user's data in the session
-	sess.Set("Name", profile.Name)
-	sess.Set("Email", profile.Email)
+	// find current user by provided email,
+	// if the user found in the database, then we can just logged in,
+	// if not, then register that user.
+	isExist, err := services.FindUserByEmail(profile.Email)
+	// this error indicates user not found
+	if err != nil {
+		// register user and save their data into database
+		result, err := services.RegisterUser(profile)
+		if err != nil {
+			log.Printf("Failed to register user: %v", err)
+			return c.Status(fiber.StatusInternalServerError).SendString("Failed to register user")
+		}
 
-	// Save into memory session and.
-	// saving also set a session cookie containing session_id
-	if err := sess.Save(); err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
+		// Store the user's id in the session
+		sess.Set("ID", result.ID)
+
+		// Save into memory session and.
+		// saving also set a session cookie containing session_id
+		if err := sess.Save(); err != nil {
+			log.Printf("Failed to save user session: %v", err)
+			return c.Status(fiber.StatusInternalServerError).SendString("Failed to save user session")
+		}
+
+		// return immediately
+		return c.Status(fiber.StatusOK).Redirect(os.Getenv("CLIENT_URL"))
 	}
 
-	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
-		"Name":  profile.Name,
-		"Email": profile.Email,
-	})
+	// Store the existed user's id in the session
+	sess.Set("ID", isExist.ID)
+
+	if err := sess.Save(); err != nil {
+		log.Printf("Failed to save user session: %v", err)
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to save user session")
+	}
+
+	return c.Status(fiber.StatusOK).Redirect(os.Getenv("CLIENT_URL"))
 }
