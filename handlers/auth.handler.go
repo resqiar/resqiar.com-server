@@ -83,3 +83,15 @@ func SendGoogleCallback(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).Redirect(os.Getenv("CLIENT_URL"))
 }
+
+func SendLogout(c *fiber.Ctx) error {
+	sess, err := config.SessionStore.Get(c)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	// destroy current user session
+	sess.Destroy()
+
+	return c.SendStatus(fiber.StatusOK)
+}
