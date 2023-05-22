@@ -16,8 +16,8 @@ func main() {
 
 	server := fiber.New()
 
-	// Initialize database connection
-	db.InitDB()
+	db.InitDB()    // init Postgres db
+	db.InitRedis() // init Redis db
 
 	// Initialize session
 	config.InitSession()
