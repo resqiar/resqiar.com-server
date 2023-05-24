@@ -20,4 +20,6 @@ type User struct {
 	Bio      string `gorm:"type:text; nullable"`
 
 	IsAdmin bool `gorm:"type:bool; default:false"`
+
+	Blogs []Blog `gorm:"foreignKey:AuthorID"` // has many relationship with blog
 }

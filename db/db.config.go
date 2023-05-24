@@ -29,5 +29,5 @@ func InitDB() {
 		panic("Failed connecting to the database...")
 	}
 
-	DB.AutoMigrate(&entities.User{})
+	DB.AutoMigrate(&entities.User{}, &entities.Blog{})
 }
