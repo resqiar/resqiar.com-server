@@ -18,4 +18,6 @@ type User struct {
 	Username string `gorm:"type:varchar(100); unique; not null"`
 	Email    string `gorm:"type:varchar(100); unique; not null"`
 	Bio      string `gorm:"type:text; nullable"`
+
+	IsAdmin bool `gorm:"type:bool; default:false"`
 }
