@@ -11,4 +11,5 @@ func InitBlogRoute(server *fiber.App) {
 	blog := server.Group("/blog", middlewares.ProtectedRoute, middlewares.AdminRoute)
 
 	blog.Get("/list", handlers.SendBlogList)
+	blog.Post("/create", handlers.SendBlogCreate)
 }
