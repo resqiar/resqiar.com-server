@@ -8,7 +8,7 @@ import (
 )
 
 func InitBlogRoute(server *fiber.App) {
-	blog := server.Group("/blog")
+	blog := server.Group("/blog", middlewares.ProtectedRoute, middlewares.AdminRoute)
 
-	blog.Get("/list", middlewares.ProtectedRoute, middlewares.AdminRoute, handlers.SendBlogList)
+	blog.Get("/list", handlers.SendBlogList)
 }
