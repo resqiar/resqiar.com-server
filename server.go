@@ -25,6 +25,7 @@ func main() {
 	// Init routes
 	routes.InitMainRoutes(server)
 	routes.InitAuthRoute(server)
+	routes.InitBlogRoute(server)
 
 	PORT := os.Getenv("PORT")
 	if err := server.Listen(":" + PORT); err != nil {
