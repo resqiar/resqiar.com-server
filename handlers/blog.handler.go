@@ -43,7 +43,27 @@ func SendBlogCreate(c *fiber.Ctx) error {
 
 	result, err := services.CreateBlog(&payload, userID.(string))
 	if err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+			"error": err,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+		"result": result,
+	})
+}
+
+func SendCurrentUserBlogs(c *fiber.Ctx) error {
+	userID := c.Locals("userID")
+	if userID == nil {
+		return c.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	result, err := services.GetCurrentUserBlogs(userID.(string))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+			"error": err,
+		})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(&fiber.Map{

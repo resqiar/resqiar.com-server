@@ -41,3 +41,13 @@ func CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog,
 
 	return &newBlog, nil
 }
+
+func GetCurrentUserBlogs(userID string) (*[]entities.Blog, error) {
+	var blogs []entities.Blog
+	result := db.DB.Find(&blogs, "author_id = ?", userID)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &blogs, nil
+}
