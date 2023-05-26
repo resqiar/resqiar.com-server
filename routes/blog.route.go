@@ -8,10 +8,17 @@ import (
 )
 
 func InitBlogRoute(server *fiber.App) {
-	blog := server.Group("/blog", middlewares.ProtectedRoute, middlewares.AdminRoute)
+	blog := server.Group("/blog")
 
-	blog.Get("/list", handlers.SendBlogList)
-	blog.Get("/list/current", handlers.SendCurrentUserBlogs)
+	// ONLY SEND PUBLISHED BLOGS FOR PUBLIC
+	// drafted/unpublished blogs must only
+	// be available to its author scope.
+	blog.Get("/list", handlers.SendPublishedBlogs)
 
-	blog.Post("/create", handlers.SendBlogCreate)
+	// =========== SPECIAL ROUTES FOR ADM ONLY ===========
+	blogADM := server.Group("/blog/admin", middlewares.ProtectedRoute, middlewares.AdminRoute)
+
+	blogADM.Get("/list", handlers.SendBlogList)
+	blogADM.Get("/list/current", handlers.SendCurrentUserBlogs)
+	blogADM.Post("/create", handlers.SendBlogCreate)
 }

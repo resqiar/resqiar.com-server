@@ -8,7 +8,19 @@ import (
 )
 
 func SendBlogList(c *fiber.Ctx) error {
-	result, err := services.GetAllBlogs()
+	result, err := services.GetAllBlogs(false)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+		"result": result,
+	})
+}
+
+func SendPublishedBlogs(c *fiber.Ctx) error {
+	// send only PUBLISHED blogs
+	result, err := services.GetAllBlogs(true)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}

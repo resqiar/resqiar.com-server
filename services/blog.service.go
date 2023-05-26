@@ -8,9 +8,16 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func GetAllBlogs() ([]entities.Blog, error) {
+func GetAllBlogs(onlyPublished bool) ([]entities.Blog, error) {
 	var blogs []entities.Blog
-	result := db.DB.Find(&blogs)
+	result := db.DB
+
+	if onlyPublished {
+		result = result.Find(&blogs, "published = ?", true) // send only published blogs
+	} else {
+		result = result.Find(&blogs)
+	}
+
 	if result.Error != nil {
 		return nil, result.Error
 	}
