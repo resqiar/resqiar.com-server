@@ -30,7 +30,6 @@ func main() {
 	config.InitSession()
 
 	// Init routes
-	routes.InitMainRoutes(server)
 	routes.InitAuthRoute(server)
 	routes.InitBlogRoute(server)
 
