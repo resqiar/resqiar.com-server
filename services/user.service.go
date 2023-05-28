@@ -41,3 +41,14 @@ func FindUserByEmail(email string) (*entities.User, error) {
 
 	return &user, nil
 }
+
+func FindUserByID(userID string) (*entities.SafeUser, error) {
+	var safeUser entities.SafeUser
+
+	result := db.DB.Model(&entities.User{}).First(&safeUser, "ID = ?", userID)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &safeUser, nil
+}

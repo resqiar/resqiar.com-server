@@ -31,6 +31,7 @@ func main() {
 
 	// Init routes
 	routes.InitAuthRoute(server)
+	routes.InitUserRoute(server)
 	routes.InitBlogRoute(server)
 
 	PORT := os.Getenv("PORT")
