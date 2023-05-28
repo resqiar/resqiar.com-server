@@ -13,9 +13,9 @@ func GetAllBlogs(onlyPublished bool) ([]entities.Blog, error) {
 	result := db.DB
 
 	if onlyPublished {
-		result = result.Find(&blogs, "published = ?", true) // send only published blogs
+		result = result.Omit("content").Find(&blogs, "published = ?", true) // send only published blogs
 	} else {
-		result = result.Find(&blogs)
+		result = result.Omit("content").Find(&blogs)
 	}
 
 	if result.Error != nil {
