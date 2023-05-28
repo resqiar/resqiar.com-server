@@ -21,6 +21,7 @@ func RegisterUser(profile *entities.GooglePayload) (*entities.User, error) {
 		Email:      profile.Email,
 		Provider:   constants.Google,
 		ProviderID: profile.SUB,
+		PictureURL: profile.Picture,
 	}
 
 	result := db.DB.Clauses(clause.Returning{}).Create(&newUser)

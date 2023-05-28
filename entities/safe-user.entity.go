@@ -9,7 +9,8 @@ type SafeUser struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	Username string
-	Email    string
-	Bio      string
+	Username   string
+	Email      string
+	Bio        string
+	PictureURL string
 }
