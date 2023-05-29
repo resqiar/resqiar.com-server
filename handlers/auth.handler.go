@@ -95,12 +95,3 @@ func SendLogout(c *fiber.Ctx) error {
 
 	return c.SendStatus(fiber.StatusOK)
 }
-
-func SendAuthStatus(c *fiber.Ctx) error {
-	userID := c.Locals("userID")
-	if userID == nil {
-		return c.SendStatus(fiber.StatusUnauthorized)
-	}
-
-	return c.SendStatus(fiber.StatusOK)
-}

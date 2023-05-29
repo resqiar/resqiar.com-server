@@ -14,5 +14,11 @@ func InitAuthRoute(server *fiber.App) {
 	auth.Get("/google/callback", handlers.SendGoogleCallback)
 
 	auth.Get("/logout", handlers.SendLogout)
-	auth.Get("/status", middlewares.ProtectedRoute, handlers.SendAuthStatus)
+	auth.Post("/status/adm",
+		middlewares.ProtectedRoute,
+		middlewares.AdminRoute,
+		func(c *fiber.Ctx) error {
+			return c.SendStatus(fiber.StatusOK)
+		},
+	)
 }
