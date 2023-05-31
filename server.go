@@ -19,8 +19,9 @@ func main() {
 
 	// Setup CORS
 	server.Use(cors.New(cors.Config{
-		AllowOrigins: os.Getenv("CLIENT_URL"),
-		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowOrigins:     os.Getenv("CLIENT_URL"),
+		AllowHeaders:     "Origin, Content-Type, Accept",
+		AllowCredentials: true,
 	}))
 
 	db.InitDB()    // init Postgres db
