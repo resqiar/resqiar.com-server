@@ -13,7 +13,7 @@ type Blog struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
 
-	Title     string `gorm:"type:varchar(70); not null"`
+	Title     string `gorm:"type:varchar(100); not null"`
 	Summary   string `gorm:"type:text"`
 	Content   string `gorm:"type:text"`
 	Published bool   `gorm:"type:bool; default:false"`
