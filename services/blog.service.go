@@ -58,3 +58,19 @@ func GetCurrentUserBlogs(userID string) (*[]entities.Blog, error) {
 
 	return &blogs, nil
 }
+
+func ChangeBlogPublish(payload *inputs.PublishBlogInput, userID string, publishState bool) (*entities.Blog, error) {
+	var blog entities.Blog
+	result := db.DB.First(&blog, "ID = ? AND author_id = ?", payload.ID, userID)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	// update published state based on given param
+	blog.Published = publishState
+
+	// save back to the database
+	db.DB.Save(&blog)
+
+	return &blog, nil
+}

@@ -16,6 +16,7 @@ func InitBlogRoute(server *fiber.App) {
 	blog.Get("/list", handlers.SendPublishedBlogs)
 
 	blog.Post("/create", middlewares.ProtectedRoute, middlewares.AdminRoute, handlers.SendBlogCreate)
+	blog.Post("/publish", middlewares.ProtectedRoute, middlewares.AdminRoute, handlers.SendPublishBlog)
 	blog.Get("/list/current", middlewares.ProtectedRoute, handlers.SendCurrentUserBlogs)
 
 	// =========== SPECIAL ROUTES FOR ADM ONLY ===========

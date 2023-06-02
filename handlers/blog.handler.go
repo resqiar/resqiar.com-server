@@ -33,9 +33,6 @@ func SendPublishedBlogs(c *fiber.Ctx) error {
 func SendBlogCreate(c *fiber.Ctx) error {
 	// get current user ID
 	userID := c.Locals("userID")
-	if userID == nil {
-		return c.SendStatus(fiber.StatusUnauthorized)
-	}
 
 	// define body payload
 	var payload inputs.CreateBlogInput
@@ -67,9 +64,6 @@ func SendBlogCreate(c *fiber.Ctx) error {
 
 func SendCurrentUserBlogs(c *fiber.Ctx) error {
 	userID := c.Locals("userID")
-	if userID == nil {
-		return c.SendStatus(fiber.StatusUnauthorized)
-	}
 
 	result, err := services.GetCurrentUserBlogs(userID.(string))
 	if err != nil {
@@ -81,4 +75,32 @@ func SendCurrentUserBlogs(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
 		"result": result,
 	})
+}
+
+func SendPublishBlog(c *fiber.Ctx) error {
+	// get current user ID
+	userID := c.Locals("userID")
+
+	// define body payload
+	var payload inputs.PublishBlogInput
+
+	// bind the body parser into payload
+	if err := c.BodyParser(&payload); err != nil {
+		// send raw error (unprocessable entity)
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	// validate the payload using class-validator
+	if err := services.ValidateInput(payload); err != "" {
+		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+			"error": err,
+		})
+	}
+
+	_, err := services.ChangeBlogPublish(&payload, userID.(string), true)
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+
+	return c.SendStatus(fiber.StatusOK)
 }
