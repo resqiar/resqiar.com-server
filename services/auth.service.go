@@ -5,7 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"resdev-server/entities"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/imagekit-developer/imagekit-go"
 )
 
 func ConvertToken(accessToken string) (*entities.GooglePayload, error) {
@@ -30,4 +34,21 @@ func ConvertToken(accessToken string) (*entities.GooglePayload, error) {
 	}
 
 	return &data, nil
+}
+
+func SignIK(c *fiber.Ctx) imagekit.SignedToken {
+	IMAGE_KIT_KEY := os.Getenv("IMAGE_KIT_KEY")
+	IMAGE_KIT_KEY_PUBLIC := os.Getenv("IMAGE_KIT_KEY_PUBLIC")
+	IMAGE_KIT_URL := os.Getenv("IMAGE_KIT_URL")
+
+	// Initialize image kit with provided params
+	ik := imagekit.NewFromParams(imagekit.NewParams{
+		PrivateKey:  IMAGE_KIT_KEY,
+		PublicKey:   IMAGE_KIT_KEY_PUBLIC,
+		UrlEndpoint: IMAGE_KIT_URL,
+	})
+
+	// return an Object containing Token, Signature and Expire
+	signed := ik.SignToken(imagekit.SignTokenParam{})
+	return signed
 }

@@ -95,3 +95,13 @@ func SendLogout(c *fiber.Ctx) error {
 
 	return c.SendStatus(fiber.StatusOK)
 }
+
+func SendAuthIK(c *fiber.Ctx) error {
+	signed := services.SignIK(c)
+
+	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+		"token":     signed.Token,
+		"signature": signed.Signature,
+		"expire":    signed.Expires,
+	})
+}

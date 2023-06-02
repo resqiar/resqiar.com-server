@@ -21,4 +21,7 @@ func InitAuthRoute(server *fiber.App) {
 			return c.SendStatus(fiber.StatusOK)
 		},
 	)
+
+	// image-kit token based auth
+	auth.Get("/ik", handlers.SendAuthIK)
 }
