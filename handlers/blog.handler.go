@@ -82,7 +82,7 @@ func SendPublishBlog(c *fiber.Ctx) error {
 	userID := c.Locals("userID")
 
 	// define body payload
-	var payload inputs.PublishBlogInput
+	var payload inputs.BlogIDInput
 
 	// bind the body parser into payload
 	if err := c.BodyParser(&payload); err != nil {
@@ -110,7 +110,7 @@ func SendUnpublishBlog(c *fiber.Ctx) error {
 	userID := c.Locals("userID")
 
 	// define body payload
-	var payload inputs.PublishBlogInput
+	var payload inputs.BlogIDInput
 
 	// bind the body parser into payload
 	if err := c.BodyParser(&payload); err != nil {

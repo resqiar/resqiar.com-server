@@ -59,7 +59,7 @@ func GetCurrentUserBlogs(userID string) (*[]entities.Blog, error) {
 	return &blogs, nil
 }
 
-func ChangeBlogPublish(payload *inputs.PublishBlogInput, userID string, publishState bool) (*entities.Blog, error) {
+func ChangeBlogPublish(payload *inputs.BlogIDInput, userID string, publishState bool) (*entities.Blog, error) {
 	var blog entities.Blog
 	result := db.DB.First(&blog, "ID = ? AND author_id = ?", payload.ID, userID)
 	if result.Error != nil {

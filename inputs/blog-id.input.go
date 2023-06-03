@@ -1,5 +1,5 @@
 package inputs
 
-type PublishBlogInput struct {
+type BlogIDInput struct {
 	ID string `validate:"required"`
 }
