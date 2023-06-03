@@ -15,9 +15,10 @@ func InitBlogRoute(server *fiber.App) {
 	// be available to its author scope.
 	blog.Get("/list", handlers.SendPublishedBlogs)
 
+	blog.Get("/list/current", middlewares.ProtectedRoute, handlers.SendCurrentUserBlogs)
 	blog.Post("/create", middlewares.ProtectedRoute, middlewares.AdminRoute, handlers.SendBlogCreate)
 	blog.Post("/publish", middlewares.ProtectedRoute, middlewares.AdminRoute, handlers.SendPublishBlog)
-	blog.Get("/list/current", middlewares.ProtectedRoute, handlers.SendCurrentUserBlogs)
+	blog.Post("/unpublish", middlewares.ProtectedRoute, middlewares.AdminRoute, handlers.SendUnpublishBlog)
 
 	// =========== SPECIAL ROUTES FOR ADM ONLY ===========
 	blogADM := server.Group("/blog/adm", middlewares.ProtectedRoute, middlewares.AdminRoute)

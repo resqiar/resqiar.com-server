@@ -104,3 +104,31 @@ func SendPublishBlog(c *fiber.Ctx) error {
 
 	return c.SendStatus(fiber.StatusOK)
 }
+
+func SendUnpublishBlog(c *fiber.Ctx) error {
+	// get current user ID
+	userID := c.Locals("userID")
+
+	// define body payload
+	var payload inputs.PublishBlogInput
+
+	// bind the body parser into payload
+	if err := c.BodyParser(&payload); err != nil {
+		// send raw error (unprocessable entity)
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	// validate the payload using class-validator
+	if err := services.ValidateInput(payload); err != "" {
+		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+			"error": err,
+		})
+	}
+
+	_, err := services.ChangeBlogPublish(&payload, userID.(string), false)
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+
+	return c.SendStatus(fiber.StatusOK)
+}
