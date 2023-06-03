@@ -25,6 +25,30 @@ func GetAllBlogs(onlyPublished bool) ([]entities.Blog, error) {
 	return blogs, nil
 }
 
+func GetPublishedBlogDetail(blogID string) (*entities.SafeBlogAuthor, error) {
+	var blog entities.SafeBlog
+
+	// Retrieve the blog by ID and published status which is "true"
+	result := db.DB.Model(&entities.Blog{}).First(&blog, "ID = ? AND published = ?", blogID, true)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	// Retrieve the author information based on the "blog.AuthorID"
+	author, error := FindUserByID(blog.AuthorID)
+	if error != nil {
+		return nil, result.Error
+	}
+
+	// Create a SafeBlogAuthor object with the retrieved blog and author
+	combined := entities.SafeBlogAuthor{
+		SafeBlog: blog,
+		Author:   *author,
+	}
+
+	return &combined, nil
+}
+
 func CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog, error) {
 	newBlog := entities.Blog{
 		Title:   payload.Title,

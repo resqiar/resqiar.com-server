@@ -18,6 +18,33 @@ func SendBlogList(c *fiber.Ctx) error {
 	})
 }
 
+func SendPublishedBlog(c *fiber.Ctx) error {
+	// define body payload
+	var payload inputs.BlogIDInput
+
+	// bind the body parser into payload
+	if err := c.BodyParser(&payload); err != nil {
+		// send raw error (unprocessable entity)
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	// validate the payload using class-validator
+	if err := services.ValidateInput(payload); err != "" {
+		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+			"error": err,
+		})
+	}
+
+	result, err := services.GetPublishedBlogDetail(payload.ID)
+	if err != nil {
+		return c.SendStatus(fiber.StatusNotFound)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+		"result": result,
+	})
+}
+
 func SendPublishedBlogs(c *fiber.Ctx) error {
 	// send only PUBLISHED blogs
 	result, err := services.GetAllBlogs(true)
