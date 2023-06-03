@@ -8,9 +8,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func GetAllBlogs(onlyPublished bool) ([]entities.Blog, error) {
-	var blogs []entities.Blog
-	result := db.DB
+func GetAllBlogs(onlyPublished bool) ([]entities.SafeBlog, error) {
+	var blogs []entities.SafeBlog
+	result := db.DB.Model(&entities.Blog{})
 
 	if onlyPublished {
 		result = result.Omit("content").Find(&blogs, "published = ?", true) // send only published blogs

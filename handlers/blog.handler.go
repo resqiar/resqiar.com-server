@@ -46,7 +46,7 @@ func SendPublishedBlog(c *fiber.Ctx) error {
 }
 
 func SendPublishedBlogs(c *fiber.Ctx) error {
-	// send only PUBLISHED blogs
+	// send only PUBLISHED and SAFE blogs
 	result, err := services.GetAllBlogs(true)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
