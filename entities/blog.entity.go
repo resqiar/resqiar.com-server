@@ -8,10 +8,11 @@ import (
 )
 
 type Blog struct {
-	ID        string `gorm:"type:text; primaryKey; unique; not null"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
+	ID          string `gorm:"type:text; primaryKey; unique; not null"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	PublishedAt time.Time
+	DeletedAt   gorm.DeletedAt
 
 	Title     string `gorm:"type:varchar(100); not null"`
 	Summary   string `gorm:"type:text"`

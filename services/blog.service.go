@@ -4,6 +4,7 @@ import (
 	"resdev-server/db"
 	"resdev-server/entities"
 	"resdev-server/inputs"
+	"time"
 
 	"gorm.io/gorm/clause"
 )
@@ -92,6 +93,15 @@ func ChangeBlogPublish(payload *inputs.BlogIDInput, userID string, publishState 
 
 	// update published state based on given param
 	blog.Published = publishState
+
+	// if publish state is true
+	// then we need to update the PublishedAt field
+	if publishState {
+		blog.PublishedAt = time.Now()
+	} else {
+		// otherwise, reset the PublishedAt field to "January 1, year 1, 00:00:00 UTC" (invalid date)
+		blog.PublishedAt = time.Time{}
+	}
 
 	// save back to the database
 	db.DB.Save(&blog)
