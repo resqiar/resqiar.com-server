@@ -76,7 +76,7 @@ func CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog,
 
 func GetCurrentUserBlogs(userID string) (*[]entities.Blog, error) {
 	var blogs []entities.Blog
-	result := db.DB.Find(&blogs, "author_id = ?", userID)
+	result := db.DB.Omit("content").Find(&blogs, "author_id = ?", userID)
 	if result.Error != nil {
 		return nil, result.Error
 	}
