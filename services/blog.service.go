@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"resdev-server/db"
 	"resdev-server/entities"
 	"resdev-server/inputs"
@@ -9,45 +10,132 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func GetAllBlogs(onlyPublished bool) ([]entities.SafeBlog, error) {
-	var blogs []entities.SafeBlog
-	result := db.DB.Model(&entities.Blog{})
+// GetAllBlogs retrieves a list of SafeBlogAuthor entities from the database.
+// If onlyPublished is true, it retrieves only the published blogs, otherwise everything.
+// It returns the list of blogs and any error encountered during the process.
+func GetAllBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error) {
+	var blogs []entities.SafeBlogAuthor
 
+	query := db.DB.Model(&entities.Blog{})
+
+	// Define SELECT and JOIN for database query operations
+	BLOG_SELECT_SQL := "blogs.id, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.cover_url, blogs.author_id, "
+	AUTHOR_SELECT_SQL := "users.id AS author_id, users.username AS author_username, users.created_at AS author_created_at, users.bio AS author_bio, users.picture_url AS author_picture_url"
+	JOIN_SQL := "JOIN users ON blogs.author_id = users.id"
+
+	// Add the SELECT and JOIN statements to the query
+	query = query.Select(BLOG_SELECT_SQL + AUTHOR_SELECT_SQL).Joins(JOIN_SQL)
+
+	// If onlyPublished is true, add a condition to retrieve only published blogs
 	if onlyPublished {
-		result = result.Omit("content").Find(&blogs, "published = ?", true) // send only published blogs
-	} else {
-		result = result.Omit("content").Find(&blogs)
+		query.Where("blogs.published = ?", true)
 	}
 
-	if result.Error != nil {
-		return nil, result.Error
+	// Execute the query and retrieve the rows
+	rows, err := query.Rows()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close() // close the row when the function out
+
+	// Loop through the result rows and populate the blogs slice
+	for rows.Next() {
+		var temp struct {
+			entities.SafeBlog
+			AuthorID         string    `gorm:"column:author_id"`
+			AuthorUsername   string    `gorm:"column:author_username"`
+			AuthorCreatedAt  time.Time `gorm:"column:author_created_at"`
+			AuthorBio        string    `gorm:"column:author_bio"`
+			AuthorPictureURL string    `gorm:"column:author_picture_url"`
+		}
+
+		// Scan the rows and bind them into the temp struct
+		err := db.DB.ScanRows(rows, &temp)
+		if err != nil {
+			return nil, err
+		}
+
+		// Create a SafeBlogAuthor entity and append it to the blogs slice
+		blog := entities.SafeBlogAuthor{
+			SafeBlog: temp.SafeBlog,
+			Author: entities.SafeUser{
+				ID:         temp.AuthorID,
+				Username:   temp.AuthorUsername,
+				CreatedAt:  temp.AuthorCreatedAt,
+				Bio:        temp.AuthorBio,
+				PictureURL: temp.AuthorPictureURL,
+			},
+		}
+
+		// append back to blogs array
+		blogs = append(blogs, blog)
 	}
 
 	return blogs, nil
 }
 
+// GetPublishedBlogDetail retrieves a single SafeBlogAuthor entity from the database
+// based on the provided blogID. It only retrieves published blogs.
+// It returns the retrieved blog and any error encountered during the process.
+// If no blog is found or an error occurs, it returns an appropriate error.
 func GetPublishedBlogDetail(blogID string) (*entities.SafeBlogAuthor, error) {
-	var blog entities.SafeBlog
+	var blog entities.SafeBlogAuthor
 
-	// Retrieve the blog by ID and published status which is "true"
-	result := db.DB.Model(&entities.Blog{}).First(&blog, "ID = ? AND published = ?", blogID, true)
+	// Define SELECT and JOIN for database query operations
+	BLOG_SELECT_SQL := "blogs.id, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.content, blogs.cover_url, blogs.author_id, "
+	AUTHOR_SELECT_SQL := "users.id AS author_id, users.username AS author_username, users.created_at AS author_created_at, users.bio AS author_bio, users.picture_url AS author_picture_url"
+	JOIN_SQL := "JOIN users ON blogs.author_id = users.id"
+
+	// Execute the query and retrieve the rows
+	result := db.DB.Model(&entities.Blog{}).
+		Select(BLOG_SELECT_SQL+AUTHOR_SELECT_SQL).
+		Joins(JOIN_SQL).
+		Where("blogs.id = ? AND published = ?", blogID, true)
+
+		// Check for any errors during query execution
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	// Retrieve the author information based on the "blog.AuthorID"
-	author, error := FindUserByID(blog.AuthorID)
-	if error != nil {
-		return nil, result.Error
+	rows, err := result.Rows()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// check if no rows are returned
+	if !rows.Next() {
+		// return nil when no rows are found
+		return nil, errors.New("404")
 	}
 
-	// Create a SafeBlogAuthor object with the retrieved blog and author
-	combined := entities.SafeBlogAuthor{
-		SafeBlog: blog,
-		Author:   *author,
+	var temp struct {
+		entities.SafeBlog
+		AuthorID         string    `gorm:"column:author_id"`
+		AuthorUsername   string    `gorm:"column:author_username"`
+		AuthorCreatedAt  time.Time `gorm:"column:author_created_at"`
+		AuthorBio        string    `gorm:"column:author_bio"`
+		AuthorPictureURL string    `gorm:"column:author_picture_url"`
 	}
 
-	return &combined, nil
+	// Scan the rows and bind them into the temp struct
+	err = db.DB.ScanRows(rows, &temp)
+	if err != nil {
+		return nil, err
+	}
+
+	blog = entities.SafeBlogAuthor{
+		SafeBlog: temp.SafeBlog,
+		Author: entities.SafeUser{
+			ID:         temp.AuthorID,
+			Username:   temp.AuthorUsername,
+			CreatedAt:  temp.AuthorCreatedAt,
+			Bio:        temp.AuthorBio,
+			PictureURL: temp.AuthorPictureURL,
+		},
+	}
+
+	return &blog, nil
 }
 
 func CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog, error) {
