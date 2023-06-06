@@ -35,7 +35,7 @@ func SendPublishedBlog(c *fiber.Ctx) error {
 		})
 	}
 
-	result, err := services.GetPublishedBlogDetail(payload.ID)
+	result, err := services.GetBlogDetail(payload.ID, true)
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
 	}
@@ -158,4 +158,40 @@ func SendUnpublishBlog(c *fiber.Ctx) error {
 	}
 
 	return c.SendStatus(fiber.StatusOK)
+}
+
+func SendMyBlog(c *fiber.Ctx) error {
+	// get current user ID
+	userID := c.Locals("userID")
+
+	// define body payload
+	var payload inputs.BlogIDInput
+
+	// bind the body parser into payload
+	if err := c.BodyParser(&payload); err != nil {
+		// send raw error (unprocessable entity)
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	// validate the payload using class-validator
+	if err := services.ValidateInput(payload); err != "" {
+		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
+			"error": err,
+		})
+	}
+
+	blog, err := services.GetBlogDetail(payload.ID, false)
+	if err != nil {
+		return c.SendStatus(fiber.StatusNotFound)
+	}
+
+	// if current requested blog is not the same author
+	// as the one who request, return 404
+	if blog.Author.ID != userID {
+		return c.SendStatus(fiber.StatusNotFound)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+		"result": blog,
+	})
 }

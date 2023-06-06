@@ -75,10 +75,10 @@ func GetAllBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error) {
 }
 
 // GetPublishedBlogDetail retrieves a single SafeBlogAuthor entity from the database
-// based on the provided blogID. It only retrieves published blogs.
+// based on the provided blogID.
 // It returns the retrieved blog and any error encountered during the process.
 // If no blog is found or an error occurs, it returns an appropriate error.
-func GetPublishedBlogDetail(blogID string) (*entities.SafeBlogAuthor, error) {
+func GetBlogDetail(blogID string, published bool) (*entities.SafeBlogAuthor, error) {
 	var blog entities.SafeBlogAuthor
 
 	// Define SELECT and JOIN for database query operations
@@ -88,11 +88,16 @@ func GetPublishedBlogDetail(blogID string) (*entities.SafeBlogAuthor, error) {
 
 	// Execute the query and retrieve the rows
 	result := db.DB.Model(&entities.Blog{}).
-		Select(BLOG_SELECT_SQL+AUTHOR_SELECT_SQL).
-		Joins(JOIN_SQL).
-		Where("blogs.id = ? AND published = ?", blogID, true)
+		Select(BLOG_SELECT_SQL + AUTHOR_SELECT_SQL).
+		Joins(JOIN_SQL)
 
-		// Check for any errors during query execution
+	if published {
+		result.Where("blogs.id = ? AND published = ?", blogID, true)
+	} else {
+		result.Where("blogs.id = ?", blogID)
+	}
+
+	// Check for any errors during query execution
 	if result.Error != nil {
 		return nil, result.Error
 	}
