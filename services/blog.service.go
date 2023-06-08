@@ -167,6 +167,27 @@ func CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog,
 	return &newBlog, nil
 }
 
+func EditBlog(payload *inputs.UpdateBlogInput, userID string) (*inputs.SafeUpdateBlogInput, error) {
+	var blog entities.Blog
+	error := db.DB.First(&blog, "id = ? AND author_id = ?", payload.ID, userID).Error
+	if error != nil {
+		return nil, error
+	}
+
+	safe := &inputs.SafeUpdateBlogInput{
+		Title:    payload.Title,
+		Summary:  payload.Summary,
+		Content:  payload.Content,
+		CoverURL: payload.CoverURL,
+	}
+
+	if err := db.DB.Model(&entities.Blog{}).Where("id = ?", blog.ID).Updates(&safe).Error; err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
 func GetCurrentUserBlogs(userID string) (*[]entities.Blog, error) {
 	var blogs []entities.Blog
 	result := db.DB.Omit("content").Find(&blogs, "author_id = ?", userID)

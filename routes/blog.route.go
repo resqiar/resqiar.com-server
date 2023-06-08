@@ -22,6 +22,7 @@ func InitBlogRoute(server *fiber.App) {
 	blog.Post("/create", middlewares.ProtectedRoute, middlewares.AdminRoute, handlers.SendBlogCreate)
 	blog.Post("/publish", middlewares.ProtectedRoute, middlewares.AdminRoute, handlers.SendPublishBlog)
 	blog.Post("/unpublish", middlewares.ProtectedRoute, middlewares.AdminRoute, handlers.SendUnpublishBlog)
+	blog.Post("/update", middlewares.ProtectedRoute, middlewares.AdminRoute, handlers.SendUpdateBlog)
 
 	// =========== SPECIAL ROUTES FOR ADM ONLY ===========
 	blogADM := server.Group("/blog/adm", middlewares.ProtectedRoute, middlewares.AdminRoute)
