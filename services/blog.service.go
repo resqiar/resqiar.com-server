@@ -181,7 +181,7 @@ func EditBlog(payload *inputs.UpdateBlogInput, userID string) (*inputs.SafeUpdat
 		CoverURL: payload.CoverURL,
 	}
 
-	if err := db.DB.Debug().Model(&entities.Blog{}).Where("id = ?", blog.ID).Updates(&safe).Error; err != nil {
+	if err := db.DB.Model(&entities.Blog{}).Where("id = ?", blog.ID).Updates(&safe).Error; err != nil {
 		return nil, err
 	}
 
