@@ -42,7 +42,7 @@ func (repo *UserRepoImpl) FindByEmail(email string) (*entities.User, error) {
 func (repo *UserRepoImpl) FindByID(ID string) (*entities.SafeUser, error) {
 	var user entities.SafeUser
 
-	result := repo.db.First(&user, "id = ?", ID)
+	result := repo.db.Model(&entities.User{}).First(&user, "id = ?", ID)
 	if result.Error != nil {
 		return nil, result.Error
 	}

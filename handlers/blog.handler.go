@@ -20,11 +20,12 @@ type BlogHandler interface {
 }
 
 type BlogHandlerImpl struct {
+	BlogService services.BlogService
 	UtilService services.UtilService
 }
 
 func (handler *BlogHandlerImpl) SendBlogList(c *fiber.Ctx) error {
-	result, err := services.GetAllBlogs(false)
+	result, err := handler.BlogService.GetAllBlogs(false)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -51,7 +52,7 @@ func (handler *BlogHandlerImpl) SendPublishedBlog(c *fiber.Ctx) error {
 		})
 	}
 
-	result, err := services.GetBlogDetail(payload.ID, true)
+	result, err := handler.BlogService.GetBlogDetail(payload.ID, true)
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
 	}
@@ -63,7 +64,7 @@ func (handler *BlogHandlerImpl) SendPublishedBlog(c *fiber.Ctx) error {
 
 func (handler *BlogHandlerImpl) SendPublishedBlogs(c *fiber.Ctx) error {
 	// send only PUBLISHED and SAFE blogs
-	result, err := services.GetAllBlogs(true)
+	result, err := handler.BlogService.GetAllBlogs(true)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -93,7 +94,7 @@ func (handler *BlogHandlerImpl) SendBlogCreate(c *fiber.Ctx) error {
 		})
 	}
 
-	result, err := services.CreateBlog(&payload, userID.(string))
+	result, err := handler.BlogService.CreateBlog(&payload, userID.(string))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
 			"error": err,
@@ -108,7 +109,7 @@ func (handler *BlogHandlerImpl) SendBlogCreate(c *fiber.Ctx) error {
 func (handler *BlogHandlerImpl) SendCurrentUserBlogs(c *fiber.Ctx) error {
 	userID := c.Locals("userID")
 
-	result, err := services.GetCurrentUserBlogs(userID.(string))
+	result, err := handler.BlogService.GetCurrentUserBlogs(userID.(string))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
 			"error": err,
@@ -140,7 +141,7 @@ func (handler *BlogHandlerImpl) SendPublishBlog(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err := services.ChangeBlogPublish(&payload, userID.(string), true)
+	_, err := handler.BlogService.ChangeBlogPublish(&payload, userID.(string), true)
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
@@ -168,7 +169,7 @@ func (handler *BlogHandlerImpl) SendUnpublishBlog(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err := services.ChangeBlogPublish(&payload, userID.(string), false)
+	_, err := handler.BlogService.ChangeBlogPublish(&payload, userID.(string), false)
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
@@ -196,7 +197,7 @@ func (handler *BlogHandlerImpl) SendMyBlog(c *fiber.Ctx) error {
 		})
 	}
 
-	blog, err := services.GetBlogDetail(payload.ID, false)
+	blog, err := handler.BlogService.GetBlogDetail(payload.ID, false)
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
 	}
@@ -232,7 +233,7 @@ func (handler *BlogHandlerImpl) SendUpdateBlog(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err := services.EditBlog(&payload, userID.(string))
+	_, err := handler.BlogService.EditBlog(&payload, userID.(string))
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
 	}
