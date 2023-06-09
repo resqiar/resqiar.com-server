@@ -12,7 +12,14 @@ import (
 	"github.com/imagekit-developer/imagekit-go"
 )
 
-func ConvertToken(accessToken string) (*entities.GooglePayload, error) {
+type AuthService interface {
+	ConvertToken(accessToken string) (*entities.GooglePayload, error)
+	SignIK(c *fiber.Ctx) imagekit.SignedToken
+}
+
+type AuthServiceImpl struct{}
+
+func (service *AuthServiceImpl) ConvertToken(accessToken string) (*entities.GooglePayload, error) {
 	resp, httpErr := http.Get(fmt.Sprintf("https://www.googleapis.com/oauth2/v3/userinfo?access_token=%s", accessToken))
 	if httpErr != nil {
 		return nil, httpErr
@@ -36,7 +43,7 @@ func ConvertToken(accessToken string) (*entities.GooglePayload, error) {
 	return &data, nil
 }
 
-func SignIK(c *fiber.Ctx) imagekit.SignedToken {
+func (service *AuthServiceImpl) SignIK(c *fiber.Ctx) imagekit.SignedToken {
 	IMAGE_KIT_KEY := os.Getenv("IMAGE_KIT_KEY")
 	IMAGE_KIT_KEY_PUBLIC := os.Getenv("IMAGE_KIT_KEY_PUBLIC")
 	IMAGE_KIT_URL := os.Getenv("IMAGE_KIT_URL")

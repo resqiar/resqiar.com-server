@@ -7,8 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func InitUserRoute(server *fiber.App) {
+func InitUserRoute(server *fiber.App, handler handlers.UserHandler) {
 	user := server.Group("user")
 
-	user.Get("/profile", middlewares.ProtectedRoute, handlers.SendUserProfile)
+	user.Get("/profile", middlewares.ProtectedRoute, handler.SendUserProfile)
 }

@@ -4,7 +4,7 @@ import (
 	"os"
 	"resdev-server/config"
 	"resdev-server/db"
-	"resdev-server/routes"
+	"resdev-server/libs"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -24,16 +24,14 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	db.InitDB()    // init Postgres db
-	db.InitRedis() // init Redis db
+	DB := db.InitDB() // init Postgres db
+	db.InitRedis()    // init Redis db
 
 	// Initialize session
 	config.InitSession()
 
-	// Init routes
-	routes.InitAuthRoute(server)
-	routes.InitUserRoute(server)
-	routes.InitBlogRoute(server)
+	// Initialize repo, service, handler and route layers
+	libs.ModuleInit(server, DB)
 
 	PORT := os.Getenv("PORT")
 	if err := server.Listen(":" + PORT); err != nil {

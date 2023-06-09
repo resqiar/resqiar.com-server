@@ -7,7 +7,15 @@ import (
 	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
-func FormatUsername(name string) string {
+type UtilService interface {
+	FormatUsername(name string) string
+	GenerateRandomID(length int) string
+	ValidateInput(payload any) string
+}
+
+type UtilServiceImpl struct{}
+
+func (service *UtilServiceImpl) FormatUsername(name string) string {
 	// format name to lowercase
 	formatted := strings.ToLower(name)
 
@@ -17,13 +25,13 @@ func FormatUsername(name string) string {
 	return formatted
 }
 
-func GenerateRandomID(length int) string {
+func (service *UtilServiceImpl) GenerateRandomID(length int) string {
 	// generate random string id using nanoid package
 	id, _ := gonanoid.New(length)
 	return id
 }
 
-func ValidateInput(payload any) string {
+func (service *UtilServiceImpl) ValidateInput(payload any) string {
 	// instantiate new instance
 	validate := validator.New()
 

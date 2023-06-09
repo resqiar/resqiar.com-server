@@ -7,7 +7,23 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func SendBlogList(c *fiber.Ctx) error {
+type BlogHandler interface {
+	SendBlogList(c *fiber.Ctx) error
+	SendPublishedBlog(c *fiber.Ctx) error
+	SendPublishedBlogs(c *fiber.Ctx) error
+	SendBlogCreate(c *fiber.Ctx) error
+	SendCurrentUserBlogs(c *fiber.Ctx) error
+	SendPublishBlog(c *fiber.Ctx) error
+	SendUnpublishBlog(c *fiber.Ctx) error
+	SendMyBlog(c *fiber.Ctx) error
+	SendUpdateBlog(c *fiber.Ctx) error
+}
+
+type BlogHandlerImpl struct {
+	UtilService services.UtilService
+}
+
+func (handler *BlogHandlerImpl) SendBlogList(c *fiber.Ctx) error {
 	result, err := services.GetAllBlogs(false)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
@@ -18,7 +34,7 @@ func SendBlogList(c *fiber.Ctx) error {
 	})
 }
 
-func SendPublishedBlog(c *fiber.Ctx) error {
+func (handler *BlogHandlerImpl) SendPublishedBlog(c *fiber.Ctx) error {
 	// define body payload
 	var payload inputs.BlogIDInput
 
@@ -29,7 +45,7 @@ func SendPublishedBlog(c *fiber.Ctx) error {
 	}
 
 	// validate the payload using class-validator
-	if err := services.ValidateInput(payload); err != "" {
+	if err := handler.UtilService.ValidateInput(payload); err != "" {
 		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
 			"error": err,
 		})
@@ -45,7 +61,7 @@ func SendPublishedBlog(c *fiber.Ctx) error {
 	})
 }
 
-func SendPublishedBlogs(c *fiber.Ctx) error {
+func (handler *BlogHandlerImpl) SendPublishedBlogs(c *fiber.Ctx) error {
 	// send only PUBLISHED and SAFE blogs
 	result, err := services.GetAllBlogs(true)
 	if err != nil {
@@ -57,7 +73,7 @@ func SendPublishedBlogs(c *fiber.Ctx) error {
 	})
 }
 
-func SendBlogCreate(c *fiber.Ctx) error {
+func (handler *BlogHandlerImpl) SendBlogCreate(c *fiber.Ctx) error {
 	// get current user ID
 	userID := c.Locals("userID")
 
@@ -71,7 +87,7 @@ func SendBlogCreate(c *fiber.Ctx) error {
 	}
 
 	// validate the payload using class-validator
-	if err := services.ValidateInput(payload); err != "" {
+	if err := handler.UtilService.ValidateInput(payload); err != "" {
 		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
 			"error": err,
 		})
@@ -89,7 +105,7 @@ func SendBlogCreate(c *fiber.Ctx) error {
 	})
 }
 
-func SendCurrentUserBlogs(c *fiber.Ctx) error {
+func (handler *BlogHandlerImpl) SendCurrentUserBlogs(c *fiber.Ctx) error {
 	userID := c.Locals("userID")
 
 	result, err := services.GetCurrentUserBlogs(userID.(string))
@@ -104,7 +120,7 @@ func SendCurrentUserBlogs(c *fiber.Ctx) error {
 	})
 }
 
-func SendPublishBlog(c *fiber.Ctx) error {
+func (handler *BlogHandlerImpl) SendPublishBlog(c *fiber.Ctx) error {
 	// get current user ID
 	userID := c.Locals("userID")
 
@@ -118,7 +134,7 @@ func SendPublishBlog(c *fiber.Ctx) error {
 	}
 
 	// validate the payload using class-validator
-	if err := services.ValidateInput(payload); err != "" {
+	if err := handler.UtilService.ValidateInput(payload); err != "" {
 		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
 			"error": err,
 		})
@@ -132,7 +148,7 @@ func SendPublishBlog(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
-func SendUnpublishBlog(c *fiber.Ctx) error {
+func (handler *BlogHandlerImpl) SendUnpublishBlog(c *fiber.Ctx) error {
 	// get current user ID
 	userID := c.Locals("userID")
 
@@ -146,7 +162,7 @@ func SendUnpublishBlog(c *fiber.Ctx) error {
 	}
 
 	// validate the payload using class-validator
-	if err := services.ValidateInput(payload); err != "" {
+	if err := handler.UtilService.ValidateInput(payload); err != "" {
 		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
 			"error": err,
 		})
@@ -160,7 +176,7 @@ func SendUnpublishBlog(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
-func SendMyBlog(c *fiber.Ctx) error {
+func (handler *BlogHandlerImpl) SendMyBlog(c *fiber.Ctx) error {
 	// get current user ID
 	userID := c.Locals("userID")
 
@@ -174,7 +190,7 @@ func SendMyBlog(c *fiber.Ctx) error {
 	}
 
 	// validate the payload using class-validator
-	if err := services.ValidateInput(payload); err != "" {
+	if err := handler.UtilService.ValidateInput(payload); err != "" {
 		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
 			"error": err,
 		})
@@ -196,7 +212,7 @@ func SendMyBlog(c *fiber.Ctx) error {
 	})
 }
 
-func SendUpdateBlog(c *fiber.Ctx) error {
+func (handler *BlogHandlerImpl) SendUpdateBlog(c *fiber.Ctx) error {
 	// get current user ID
 	userID := c.Locals("userID")
 
@@ -210,7 +226,7 @@ func SendUpdateBlog(c *fiber.Ctx) error {
 	}
 
 	// validate the payload using class-validator
-	if err := services.ValidateInput(payload); err != "" {
+	if err := handler.UtilService.ValidateInput(payload); err != "" {
 		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
 			"error": err,
 		})

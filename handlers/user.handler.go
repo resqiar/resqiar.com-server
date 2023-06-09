@@ -6,13 +6,21 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func SendUserProfile(c *fiber.Ctx) error {
+type UserHandler interface {
+	SendUserProfile(c *fiber.Ctx) error
+}
+
+type UserHandlerImpl struct {
+	UserService services.UserService
+}
+
+func (handler *UserHandlerImpl) SendUserProfile(c *fiber.Ctx) error {
 	userID := c.Locals("userID")
 	if userID == nil {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	safeUser, err := services.FindUserByID(userID.(string))
+	safeUser, err := handler.UserService.FindUserByID(userID.(string))
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).SendString(err.Error())
 	}

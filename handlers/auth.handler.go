@@ -9,7 +9,19 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func SendAuthGoogle(c *fiber.Ctx) error {
+type AuthHandler interface {
+	SendAuthGoogle(c *fiber.Ctx) error
+	SendGoogleCallback(c *fiber.Ctx) error
+	SendLogout(c *fiber.Ctx) error
+	SendAuthIK(c *fiber.Ctx) error
+}
+
+type AuthHandlerImpl struct {
+	UserService services.UserService
+	AuthService services.AuthService
+}
+
+func (handler *AuthHandlerImpl) SendAuthGoogle(c *fiber.Ctx) error {
 	// create a config for google config
 	conf := config.GoogleConfig()
 
@@ -22,7 +34,7 @@ func SendAuthGoogle(c *fiber.Ctx) error {
 	return c.Redirect(URL)
 }
 
-func SendGoogleCallback(c *fiber.Ctx) error {
+func (handler *AuthHandlerImpl) SendGoogleCallback(c *fiber.Ctx) error {
 	// get session store for current context
 	sess, err := config.SessionStore.Get(c)
 	if err != nil {
@@ -41,7 +53,7 @@ func SendGoogleCallback(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	profile, err := services.ConvertToken(token.AccessToken)
+	profile, err := handler.AuthService.ConvertToken(token.AccessToken)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -49,11 +61,11 @@ func SendGoogleCallback(c *fiber.Ctx) error {
 	// find current user by provided email,
 	// if the user found in the database, then we can just logged in,
 	// if not, then register that user.
-	isExist, err := services.FindUserByEmail(profile.Email)
+	isExist, err := handler.UserService.FindUserByEmail(profile.Email)
 	// this error indicates user not found
 	if err != nil {
 		// register user and save their data into database
-		result, err := services.RegisterUser(profile)
+		result, err := handler.UserService.RegisterUser(profile)
 		if err != nil {
 			log.Printf("Failed to register user: %v", err)
 			return c.Status(fiber.StatusInternalServerError).SendString("Failed to register user")
@@ -84,7 +96,7 @@ func SendGoogleCallback(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).Redirect(os.Getenv("CLIENT_URL"))
 }
 
-func SendLogout(c *fiber.Ctx) error {
+func (handler *AuthHandlerImpl) SendLogout(c *fiber.Ctx) error {
 	sess, err := config.SessionStore.Get(c)
 	if err != nil {
 		log.Println(err.Error())
@@ -96,8 +108,8 @@ func SendLogout(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
-func SendAuthIK(c *fiber.Ctx) error {
-	signed := services.SignIK(c)
+func (handler *AuthHandlerImpl) SendAuthIK(c *fiber.Ctx) error {
+	signed := handler.AuthService.SignIK(c)
 
 	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
 		"token":     signed.Token,

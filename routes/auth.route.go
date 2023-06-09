@@ -7,13 +7,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func InitAuthRoute(server *fiber.App) {
+func InitAuthRoute(server *fiber.App, handler handlers.AuthHandler) {
 	auth := server.Group("/auth")
 
-	auth.Get("/google", handlers.SendAuthGoogle)
-	auth.Get("/google/callback", handlers.SendGoogleCallback)
+	auth.Get("/google", handler.SendAuthGoogle)
+	auth.Get("/google/callback", handler.SendGoogleCallback)
 
-	auth.Get("/logout", handlers.SendLogout)
+	auth.Get("/logout", handler.SendLogout)
 	auth.Post("/status/adm",
 		middlewares.ProtectedRoute,
 		middlewares.AdminRoute,
@@ -23,5 +23,5 @@ func InitAuthRoute(server *fiber.App) {
 	)
 
 	// image-kit token based auth
-	auth.Get("/ik", handlers.SendAuthIK)
+	auth.Get("/ik", handler.SendAuthIK)
 }

@@ -12,7 +12,7 @@ import (
 var DB *gorm.DB
 var err error
 
-func InitDB() {
+func InitDB() *gorm.DB {
 	DB_HOST := os.Getenv("DB_HOST")
 	DB_NAME := os.Getenv("DB_NAME")
 	DB_USER := os.Getenv("DB_USER")
@@ -30,4 +30,6 @@ func InitDB() {
 	}
 
 	DB.AutoMigrate(&entities.User{}, &entities.Blog{})
+
+	return DB
 }
