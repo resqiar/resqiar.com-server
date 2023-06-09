@@ -20,7 +20,7 @@ func GetAllBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error) {
 
 	// Define SELECT and JOIN for database query operations
 	BLOG_SELECT_SQL := "blogs.id, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.cover_url, blogs.author_id, "
-	AUTHOR_SELECT_SQL := "users.id AS author_id, users.username AS author_username, users.created_at AS author_created_at, users.bio AS author_bio, users.picture_url AS author_picture_url"
+	AUTHOR_SELECT_SQL := "users.id AS author_id, users.username AS author_username, users.created_at AS author_created_at, users.bio AS author_bio, users.picture_url AS author_picture_url, users.is_tester AS author_is_tester"
 	JOIN_SQL := "JOIN users ON blogs.author_id = users.id"
 
 	// Add the SELECT and JOIN statements to the query
@@ -47,6 +47,7 @@ func GetAllBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error) {
 			AuthorCreatedAt  time.Time `gorm:"column:author_created_at"`
 			AuthorBio        string    `gorm:"column:author_bio"`
 			AuthorPictureURL string    `gorm:"column:author_picture_url"`
+			AuthorIsTester   bool      `gorm:"column:author_is_tester"`
 		}
 
 		// Scan the rows and bind them into the temp struct
@@ -64,6 +65,7 @@ func GetAllBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error) {
 				CreatedAt:  temp.AuthorCreatedAt,
 				Bio:        temp.AuthorBio,
 				PictureURL: temp.AuthorPictureURL,
+				IsTester:   temp.AuthorIsTester,
 			},
 		}
 
@@ -83,7 +85,7 @@ func GetBlogDetail(blogID string, published bool) (*entities.SafeBlogAuthor, err
 
 	// Define SELECT and JOIN for database query operations
 	BLOG_SELECT_SQL := "blogs.id, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.content, blogs.cover_url, blogs.author_id, "
-	AUTHOR_SELECT_SQL := "users.id AS author_id, users.username AS author_username, users.created_at AS author_created_at, users.bio AS author_bio, users.picture_url AS author_picture_url"
+	AUTHOR_SELECT_SQL := "users.id AS author_id, users.username AS author_username, users.created_at AS author_created_at, users.bio AS author_bio, users.picture_url AS author_picture_url, users.is_tester AS author_is_tester"
 	JOIN_SQL := "JOIN users ON blogs.author_id = users.id"
 
 	// Execute the query and retrieve the rows
@@ -121,6 +123,7 @@ func GetBlogDetail(blogID string, published bool) (*entities.SafeBlogAuthor, err
 		AuthorCreatedAt  time.Time `gorm:"column:author_created_at"`
 		AuthorBio        string    `gorm:"column:author_bio"`
 		AuthorPictureURL string    `gorm:"column:author_picture_url"`
+		AuthorIsTester   bool      `gorm:"column:author_is_tester"`
 	}
 
 	// Scan the rows and bind them into the temp struct
@@ -137,6 +140,7 @@ func GetBlogDetail(blogID string, published bool) (*entities.SafeBlogAuthor, err
 			CreatedAt:  temp.AuthorCreatedAt,
 			Bio:        temp.AuthorBio,
 			PictureURL: temp.AuthorPictureURL,
+			IsTester:   temp.AuthorIsTester,
 		},
 	}
 

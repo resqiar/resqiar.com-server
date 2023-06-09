@@ -11,4 +11,6 @@ type SafeUser struct {
 	Username   string
 	Bio        string
 	PictureURL string
+
+	IsTester bool
 }

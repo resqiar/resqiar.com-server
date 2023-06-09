@@ -7,9 +7,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// check logged in user if he/she is an admin,
+// check logged in user if he/she is a tester,
 // if so allow the route, else throw 401
-func AdminRoute(c *fiber.Ctx) error {
+func TesterRoute(c *fiber.Ctx) error {
 	// user id from locals
 	userID := c.Locals("userID")
 	if userID == nil {
@@ -17,10 +17,10 @@ func AdminRoute(c *fiber.Ctx) error {
 	}
 
 	var currentUser entities.User
-	result := db.DB.First(&currentUser, "ID = ? AND is_admin = ?", userID, true)
+	result := db.DB.First(&currentUser, "ID = ? AND is_tester = ?", userID, true)
 
-	// check if error OR if current user is NOT admin
-	if result.Error != nil || !currentUser.IsAdmin {
+	// check if error OR if current user is NOT tester
+	if result.Error != nil || !currentUser.IsTester {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
