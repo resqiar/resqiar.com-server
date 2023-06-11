@@ -26,3 +26,6 @@ go.work
 
 # air cache
 tmp
+
+# code coverage result
+cov
