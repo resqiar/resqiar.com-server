@@ -1,6 +1,7 @@
 package services
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -16,8 +17,22 @@ type UtilService interface {
 type UtilServiceImpl struct{}
 
 func (service *UtilServiceImpl) FormatUsername(name string) string {
+	// remove any non-alphanumeric characters from the string
+	// example "?-_!" should be ""
+	// example "a?!;';';'b" should be "ab"
+	validChars := regexp.MustCompile("[^ a-zA-Z0-9]").ReplaceAllString(name, "")
+	formatted := validChars
+
+	// trim spaces
+	formatted = strings.TrimSpace(formatted)
+
+	// trim spaces between chars to maxed only one space
+	// example "a       b" should be "a b"
+	singleSpace := regexp.MustCompile(`\s+`).ReplaceAllString(formatted, " ")
+	formatted = singleSpace
+
 	// format name to lowercase
-	formatted := strings.ToLower(name)
+	formatted = strings.ToLower(formatted)
 
 	// format name to replace all spaces into _ (underscore)
 	formatted = strings.ReplaceAll(formatted, " ", "_")
@@ -32,6 +47,10 @@ func (service *UtilServiceImpl) GenerateRandomID(length int) string {
 }
 
 func (service *UtilServiceImpl) ValidateInput(payload any) string {
+	if payload == nil {
+		return "Invalid Payload"
+	}
+
 	// instantiate new instance
 	validate := validator.New()
 
@@ -60,7 +79,7 @@ func (service *UtilServiceImpl) ValidateInput(payload any) string {
 			}
 
 			// raw error which is not covered above
-			errMessage = err.Error()
+			errMessage = "Error on field " + err.StructField()
 		}
 	}
 
