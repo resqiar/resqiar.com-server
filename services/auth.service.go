@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -31,6 +32,18 @@ func (service *AuthServiceImpl) ConvertToken(accessToken string) (*entities.Goog
 	respBody, bodyErr := ioutil.ReadAll(resp.Body)
 	if bodyErr != nil {
 		return nil, bodyErr
+	}
+
+	// Unmarshal raw response body to a map
+	var body map[string]interface{}
+	if err := json.Unmarshal(respBody, &body); err != nil {
+		return nil, err
+	}
+
+	// if json body containing error,
+	// then the token is indeed invalid. return invalid token err
+	if body["error"] != nil {
+		return nil, errors.New("Invalid token")
 	}
 
 	// Bind JSON into struct
