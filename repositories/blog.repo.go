@@ -2,8 +2,8 @@ package repositories
 
 import (
 	"errors"
-	"resdev-server/entities"
-	"resdev-server/inputs"
+	"resqiar.com-server/entities"
+	"resqiar.com-server/inputs"
 	"time"
 
 	"gorm.io/gorm"

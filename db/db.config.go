@@ -3,7 +3,7 @@ package db
 import (
 	"fmt"
 	"os"
-	"resdev-server/entities"
+	"resqiar.com-server/entities"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

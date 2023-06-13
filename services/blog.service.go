@@ -1,9 +1,9 @@
 package services
 
 import (
-	"resdev-server/entities"
-	"resdev-server/inputs"
-	"resdev-server/repositories"
+	"resqiar.com-server/entities"
+	"resqiar.com-server/inputs"
+	"resqiar.com-server/repositories"
 	"time"
 )
 

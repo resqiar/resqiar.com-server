@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"resdev-server/entities"
+	"resqiar.com-server/entities"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"

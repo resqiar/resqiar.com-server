@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"resdev-server/entities"
+	"resqiar.com-server/entities"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/imagekit-developer/imagekit-go"

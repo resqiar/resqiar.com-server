@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"resdev-server/services"
+	"resqiar.com-server/services"
 
 	"github.com/gofiber/fiber/v2"
 )

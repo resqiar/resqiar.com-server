@@ -2,9 +2,9 @@ package services
 
 import (
 	"fmt"
-	"resdev-server/constants"
-	"resdev-server/entities"
-	"resdev-server/repositories"
+	"resqiar.com-server/constants"
+	"resqiar.com-server/entities"
+	"resqiar.com-server/repositories"
 )
 
 type UserService interface {

@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"resdev-server/entities"
+	"resqiar.com-server/entities"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

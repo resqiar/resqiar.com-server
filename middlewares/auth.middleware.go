@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"log"
-	"resdev-server/config"
+	"resqiar.com-server/config"
 
 	"github.com/gofiber/fiber/v2"
 )

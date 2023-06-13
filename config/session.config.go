@@ -2,7 +2,7 @@ package config
 
 import (
 	"os"
-	"resdev-server/db"
+	"resqiar.com-server/db"
 	"time"
 
 	"github.com/gofiber/fiber/v2/middleware/session"

@@ -2,9 +2,9 @@ package main
 
 import (
 	"os"
-	"resdev-server/config"
-	"resdev-server/db"
-	"resdev-server/libs"
+	"resqiar.com-server/config"
+	"resqiar.com-server/db"
+	"resqiar.com-server/libs"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"

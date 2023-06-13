@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"resdev-server/handlers"
-	"resdev-server/middlewares"
+	"resqiar.com-server/handlers"
+	"resqiar.com-server/middlewares"
 
 	"github.com/gofiber/fiber/v2"
 )

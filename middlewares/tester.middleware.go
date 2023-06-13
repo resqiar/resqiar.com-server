@@ -1,8 +1,8 @@
 package middlewares
 
 import (
-	"resdev-server/db"
-	"resdev-server/entities"
+	"resqiar.com-server/db"
+	"resqiar.com-server/entities"
 
 	"github.com/gofiber/fiber/v2"
 )

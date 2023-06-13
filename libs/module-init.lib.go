@@ -1,10 +1,10 @@
 package libs
 
 import (
-	"resdev-server/handlers"
-	"resdev-server/repositories"
-	"resdev-server/routes"
-	"resdev-server/services"
+	"resqiar.com-server/handlers"
+	"resqiar.com-server/repositories"
+	"resqiar.com-server/routes"
+	"resqiar.com-server/services"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"

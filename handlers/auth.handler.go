@@ -3,8 +3,8 @@ package handlers
 import (
 	"log"
 	"os"
-	"resdev-server/config"
-	"resdev-server/services"
+	"resqiar.com-server/config"
+	"resqiar.com-server/services"
 
 	"github.com/gofiber/fiber/v2"
 )
