@@ -32,8 +32,9 @@ func main() {
 	DB := db.InitDB() // init Postgres db
 	db.InitRedis()    // init Redis db
 
-	// Initialize session
+	// Initialize sessions
 	config.InitSession()
+	config.InitStateSession()
 
 	// Initialize repo, service, handler and route layers
 	libs.ModuleInit(server, DB)

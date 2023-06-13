@@ -25,6 +25,7 @@ func ModuleInit(server *fiber.App, DB *gorm.DB) {
 	authHandler := handlers.AuthHandlerImpl{
 		UserService: &userService,
 		AuthService: &authService,
+		UtilService: &utilService,
 	}
 	userHandler := handlers.UserHandlerImpl{UserService: &userService}
 	blogHandler := handlers.BlogHandlerImpl{

@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"os"
+
 	"resqiar.com-server/config"
 	"resqiar.com-server/services"
 
@@ -19,16 +20,24 @@ type AuthHandler interface {
 type AuthHandlerImpl struct {
 	UserService services.UserService
 	AuthService services.AuthService
+	UtilService services.UtilService
 }
 
 func (handler *AuthHandlerImpl) SendAuthGoogle(c *fiber.Ctx) error {
 	// create a config for google config
 	conf := config.GoogleConfig()
 
+	// generate random 32-long for state identification
+	generated := handler.UtilService.GenerateRandomID(32)
+
+	sess, _ := config.StateStore.Get(c)
+	sess.Set("session_state", generated)
+	sess.Save()
+
 	// create url for auth process.
 	// we can pass state as someway to identify
-	// and validate the login process, for now skip it.
-	URL := conf.AuthCodeURL("state")
+	// and validate the login process.
+	URL := conf.AuthCodeURL(generated)
 
 	// redirect to the google authentication URL
 	return c.Redirect(URL)
@@ -36,13 +45,27 @@ func (handler *AuthHandlerImpl) SendAuthGoogle(c *fiber.Ctx) error {
 
 func (handler *AuthHandlerImpl) SendGoogleCallback(c *fiber.Ctx) error {
 	// get session store for current context
-	sess, err := config.SessionStore.Get(c)
-	if err != nil {
+	sess, sessErr := config.SessionStore.Get(c)
+	stateSess, stateErr := config.StateStore.Get(c)
+	if sessErr != nil || stateErr != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
+	// state from the session storage
+	savedState := stateSess.Get("session_state")
+
 	conf := config.GoogleConfig()
+
+	// get state and  from the google callback
+	state := c.Query("state")
 	code := c.Query("code")
+
+	// compare the state that is coming from the callback
+	// with the one that is stored inside the session storage.
+	if state != savedState {
+		// Handle the invalid state error
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid state")
+	}
 
 	// exchange code that retrieved from google via
 	// URL query parameter into token, this token
