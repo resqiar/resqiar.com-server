@@ -2,12 +2,14 @@ package main
 
 import (
 	"os"
+
 	"resqiar.com-server/config"
 	"resqiar.com-server/db"
 	"resqiar.com-server/libs"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/joho/godotenv"
 )
 
@@ -23,6 +25,9 @@ func main() {
 		AllowHeaders:     "Origin, Content-Type, Accept",
 		AllowCredentials: true,
 	}))
+
+	// Setup rate-limiter
+	server.Use(limiter.New(config.RateLimiterConfig()))
 
 	DB := db.InitDB() // init Postgres db
 	db.InitRedis()    // init Redis db
