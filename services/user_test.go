@@ -68,3 +68,55 @@ func TestRegisterUser(t *testing.T) {
 		assert.Nil(t, result)
 	})
 }
+
+func TestFindUserByEmail(t *testing.T) {
+	t.Run("Should return a user with the same email", func(t *testing.T) {
+		email := "valid@example.com"
+
+		userRepo.Mock.On("FindByEmail", email).Return(email)
+
+		result, error := userService.FindUserByEmail(email)
+
+		assert.Nil(t, error)
+		assert.NotNil(t, result)
+		assert.Equal(t, email, result.Email) // Should be equal
+	})
+
+	t.Run("Should return error if the record is not found", func(t *testing.T) {
+		email := "wrong@example.com"
+
+		userRepo.Mock.On("FindByEmail", email).Return(email)
+
+		result, error := userService.FindUserByEmail(email)
+
+		assert.Nil(t, result)
+		assert.NotNil(t, error)
+		assert.EqualError(t, error, "Record not found")
+	})
+}
+
+func TestFindUserByID(t *testing.T) {
+	t.Run("Should return a user with the same ID", func(t *testing.T) {
+		ID := "example-of-valid-id"
+
+		userRepo.Mock.On("FindByID", ID).Return(ID)
+
+		result, error := userService.FindUserByID(ID)
+
+		assert.Nil(t, error)
+		assert.NotNil(t, result)
+		assert.Equal(t, ID, result.ID) // Should be equal
+	})
+
+	t.Run("Should return error if the record is not found", func(t *testing.T) {
+		ID := "example-of-invalid-id"
+
+		userRepo.Mock.On("FindByID", ID).Return(ID)
+
+		result, error := userService.FindUserByID(ID)
+
+		assert.Nil(t, result)
+		assert.NotNil(t, error)
+		assert.EqualError(t, error, "Record not found")
+	})
+}

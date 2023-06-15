@@ -23,10 +23,32 @@ func (repo *UserRepoMock) CreateUser(user *entities.User) error {
 
 func (repo *UserRepoMock) FindByEmail(email string) (*entities.User, error) {
 	args := repo.Mock.Called(email)
-	return nil, errors.New(args.Get(0).(string))
+
+	validEmail := "valid@example.com"
+
+	if args.Get(0) == validEmail {
+		user := entities.User{
+			Email: email,
+		}
+
+		return &user, nil
+	}
+
+	return nil, errors.New("Record not found")
 }
 
 func (repo *UserRepoMock) FindByID(ID string) (*entities.SafeUser, error) {
 	args := repo.Mock.Called(ID)
-	return nil, errors.New(args.Get(0).(string))
+
+	validID := "example-of-valid-id"
+
+	if args.Get(0) == validID {
+		user := entities.SafeUser{
+			ID: ID,
+		}
+
+		return &user, nil
+	}
+
+	return nil, errors.New("Record not found")
 }
