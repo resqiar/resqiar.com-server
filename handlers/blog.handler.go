@@ -141,7 +141,7 @@ func (handler *BlogHandlerImpl) SendPublishBlog(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err := handler.BlogService.ChangeBlogPublish(&payload, userID.(string), true)
+	err := handler.BlogService.ChangeBlogPublish(&payload, userID.(string), true)
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
@@ -169,7 +169,7 @@ func (handler *BlogHandlerImpl) SendUnpublishBlog(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err := handler.BlogService.ChangeBlogPublish(&payload, userID.(string), false)
+	err := handler.BlogService.ChangeBlogPublish(&payload, userID.(string), false)
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
@@ -233,7 +233,7 @@ func (handler *BlogHandlerImpl) SendUpdateBlog(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err := handler.BlogService.EditBlog(&payload, userID.(string))
+	err := handler.BlogService.EditBlog(&payload, userID.(string))
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
 	}

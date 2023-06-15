@@ -11,9 +11,9 @@ type BlogService interface {
 	GetAllBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error)
 	GetBlogDetail(blogID string, published bool) (*entities.SafeBlogAuthor, error)
 	CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog, error)
-	EditBlog(payload *inputs.UpdateBlogInput, userID string) (*inputs.SafeUpdateBlogInput, error)
+	EditBlog(payload *inputs.UpdateBlogInput, userID string) error
 	GetCurrentUserBlogs(userID string) ([]entities.Blog, error)
-	ChangeBlogPublish(payload *inputs.BlogIDInput, userID string, publishState bool) (*entities.Blog, error)
+	ChangeBlogPublish(payload *inputs.BlogIDInput, userID string, publishState bool) error
 }
 
 type BlogServiceImpl struct {
@@ -68,10 +68,10 @@ func (service *BlogServiceImpl) CreateBlog(payload *inputs.CreateBlogInput, user
 	return result, nil
 }
 
-func (service *BlogServiceImpl) EditBlog(payload *inputs.UpdateBlogInput, userID string) (*inputs.SafeUpdateBlogInput, error) {
+func (service *BlogServiceImpl) EditBlog(payload *inputs.UpdateBlogInput, userID string) error {
 	blog, err := service.Repository.GetByIDAndAuthor(payload.ID, userID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	safe := &inputs.SafeUpdateBlogInput{
@@ -82,10 +82,10 @@ func (service *BlogServiceImpl) EditBlog(payload *inputs.UpdateBlogInput, userID
 	}
 
 	if err := service.Repository.UpdateBlog(blog.ID, safe); err != nil {
-		return nil, err
+		return err
 	}
 
-	return nil, nil
+	return nil
 }
 
 func (service *BlogServiceImpl) GetCurrentUserBlogs(userID string) ([]entities.Blog, error) {
@@ -97,10 +97,10 @@ func (service *BlogServiceImpl) GetCurrentUserBlogs(userID string) ([]entities.B
 	return blogs, nil
 }
 
-func (service *BlogServiceImpl) ChangeBlogPublish(payload *inputs.BlogIDInput, userID string, publishState bool) (*entities.Blog, error) {
+func (service *BlogServiceImpl) ChangeBlogPublish(payload *inputs.BlogIDInput, userID string, publishState bool) error {
 	blog, err := service.Repository.GetByIDAndAuthor(payload.ID, userID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// update published state based on given param
@@ -117,8 +117,8 @@ func (service *BlogServiceImpl) ChangeBlogPublish(payload *inputs.BlogIDInput, u
 
 	// save back to the database
 	if err := service.Repository.SaveBlog(blog); err != nil {
-		return nil, err
+		return err
 	}
 
-	return blog, nil
+	return nil
 }
