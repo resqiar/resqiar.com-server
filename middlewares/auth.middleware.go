@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"log"
 
 	"resqiar.com-server/config"
@@ -17,7 +16,6 @@ func ProtectedRoute(c *fiber.Ctx) error {
 	}
 
 	userID := sess.Get("ID")
-	fmt.Println(c.GetReqHeaders())
 	if userID == nil {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
