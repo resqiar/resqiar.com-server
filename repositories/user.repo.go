@@ -18,14 +18,18 @@ func InitUserRepo(db *gorm.DB) UserRepository {
 }
 
 type UserRepository interface {
-	CreateUser(*entities.User) error
+	CreateUser(*entities.User) (*entities.User, error)
 	FindByEmail(email string) (*entities.User, error)
 	FindByID(ID string) (*entities.SafeUser, error)
 }
 
-func (repo *UserRepoImpl) CreateUser(user *entities.User) error {
-	result := repo.db.Clauses(clause.Returning{}).Create(user)
-	return result.Error
+func (repo *UserRepoImpl) CreateUser(user *entities.User) (*entities.User, error) {
+	input := user
+	err := repo.db.Clauses(clause.Returning{}).Create(input).Error
+	if err != nil {
+		return nil, err
+	}
+	return input, err
 }
 
 func (repo *UserRepoImpl) FindByEmail(email string) (*entities.User, error) {

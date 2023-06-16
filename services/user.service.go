@@ -25,7 +25,7 @@ func (service *UserServiceImpl) RegisterUser(profile *entities.GooglePayload) (*
 	// concatenate formatted name with the nano id
 	formattedName = fmt.Sprintf("%s_%s", formattedName, service.UtilService.GenerateRandomID(7))
 
-	newUser := entities.User{
+	newUser := &entities.User{
 		Username:   formattedName,
 		Email:      profile.Email,
 		Provider:   constants.Google,
@@ -33,12 +33,12 @@ func (service *UserServiceImpl) RegisterUser(profile *entities.GooglePayload) (*
 		PictureURL: profile.Picture,
 	}
 
-	err := service.Repository.CreateUser(&newUser)
+	result, err := service.Repository.CreateUser(newUser)
 	if err != nil {
 		return nil, err
 	}
 
-	return &newUser, nil
+	return result, nil
 }
 
 func (service *UserServiceImpl) FindUserByEmail(email string) (*entities.User, error) {
