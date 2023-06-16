@@ -40,7 +40,7 @@ func TestRegisterUser(t *testing.T) {
 		}
 
 		userRepo.Mock.On("CreateUser",
-			mock.MatchedBy(matcher)).Return("")
+			mock.MatchedBy(matcher)).Return(&expectedInput, "")
 
 		result, error := userService.RegisterUser(&payload)
 
@@ -60,7 +60,7 @@ func TestRegisterUser(t *testing.T) {
 		}
 
 		userRepo.Mock.On("CreateUser",
-			mock.MatchedBy(matcher)).Return("Email cannot be null")
+			mock.MatchedBy(matcher)).Return(nil, "Email cannot be null")
 
 		result, error := userService.RegisterUser(&payload)
 

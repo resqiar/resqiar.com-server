@@ -11,14 +11,14 @@ type UserRepoMock struct {
 	Mock mock.Mock
 }
 
-func (repo *UserRepoMock) CreateUser(user *entities.User) error {
+func (repo *UserRepoMock) CreateUser(user *entities.User) (*entities.User, error) {
 	args := repo.Mock.Called(user)
 
-	if args.Get(0) == "" {
-		return nil
+	if args.Get(0) != nil {
+		return args.Get(0).(*entities.User), nil
 	}
 
-	return errors.New(args.Get(0).(string))
+	return nil, errors.New(args.Get(1).(string))
 }
 
 func (repo *UserRepoMock) FindByEmail(email string) (*entities.User, error) {
