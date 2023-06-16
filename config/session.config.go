@@ -21,6 +21,7 @@ func InitSession() {
 		CookieDomain:   CLIENT_DOMAIN,
 		CookiePath:     "/",
 		Storage:        db.RedisStore,
+		CookieSameSite: "None",
 	})
 }
 
