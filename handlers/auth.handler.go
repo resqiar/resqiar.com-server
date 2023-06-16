@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -109,7 +108,6 @@ func (handler *AuthHandlerImpl) SendGoogleCallback(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).Redirect(os.Getenv("CLIENT_URL"))
 	}
 
-	fmt.Println(isExist.ID)
 	// Store the existed user's id in the session
 	sess.Set("ID", isExist.ID)
 
