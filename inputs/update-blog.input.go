@@ -6,7 +6,7 @@ type UpdateBlogInput struct {
 	ID       string `validate:"required"`
 	Title    string `validate:"omitempty,max=100"`
 	Summary  string `validate:"omitempty,max=300"`
-	Content  string `validate:"omitempty,max=10000"`
+	Content  string `validate:"omitempty,max=50000"`
 	CoverURL string `validate:"omitempty,url"`
 }
 
