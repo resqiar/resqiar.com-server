@@ -133,6 +133,9 @@ func (service *BlogServiceImpl) ChangeBlogPublish(payload *inputs.BlogIDInput, u
 		blog.PublishedAt = time.Time{}
 	}
 
+	// change the updated at to newest date
+	blog.UpdatedAt = time.Now()
+
 	// save back to the database
 	if err := service.Repository.SaveBlog(blog); err != nil {
 		return err
