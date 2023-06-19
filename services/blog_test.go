@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"resqiar.com-server/dto"
 	"resqiar.com-server/entities"
 	"resqiar.com-server/inputs"
 	"resqiar.com-server/repositories"
@@ -104,14 +105,14 @@ func TestGetBlogsID(t *testing.T) {
 		expected := []entities.SafeBlogAuthor{
 			{
 				SafeBlog: entities.SafeBlog{
-					ID:          "example-of-id-1",
+					ID:          "example-of-id",
 					PublishedAt: time.Now(),
 				},
 			},
 			{
 				SafeBlog: entities.SafeBlog{
-					ID:          "example-of-id-2",
-					PublishedAt: time.Now(),
+					ID:          "example-of-id",
+					PublishedAt: time.Time{},
 				},
 			},
 		}
@@ -122,9 +123,12 @@ func TestGetBlogsID(t *testing.T) {
 
 		assert.Nil(t, err)
 		assert.NotEmpty(t, results)
-		assert.Contains(t, results, "example-of-id-1")
-		assert.Contains(t, results, "example-of-id-2")
-		assert.IsType(t, []string{}, results)
+		assert.IsType(t, []dto.SitemapOutput{}, results)
+
+		for _, result := range results {
+			assert.Equal(t, "example-of-id", result.ID)
+			assert.NotNil(t, result.UpdatedAt)
+		}
 
 		t.Cleanup(func() {
 			// Cleanup mocking
