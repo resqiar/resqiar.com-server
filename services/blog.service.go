@@ -1,6 +1,7 @@
 package services
 
 import (
+	"resqiar.com-server/dto"
 	"resqiar.com-server/entities"
 	"resqiar.com-server/inputs"
 	"resqiar.com-server/repositories"
@@ -9,6 +10,7 @@ import (
 
 type BlogService interface {
 	GetAllBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error)
+	GetAllBlogsID() ([]dto.SitemapOutput, error)
 	GetBlogDetail(blogID string, published bool) (*entities.SafeBlogAuthor, error)
 	CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog, error)
 	EditBlog(payload *inputs.UpdateBlogInput, userID string) error
@@ -30,6 +32,27 @@ func (service *BlogServiceImpl) GetAllBlogs(onlyPublished bool) ([]entities.Safe
 	}
 
 	return blogs, nil
+}
+
+func (service *BlogServiceImpl) GetAllBlogsID() ([]dto.SitemapOutput, error) {
+	blogs, err := service.GetAllBlogs(true) // get all published blogs
+	if err != nil {
+		return nil, err
+	}
+
+	var result []dto.SitemapOutput
+
+	// only get the id, and append it to array if of string
+	for _, blog := range blogs {
+		temp := dto.SitemapOutput{
+			ID:        blog.ID,
+			UpdatedAt: blog.UpdatedAt,
+		}
+
+		result = append(result, temp)
+	}
+
+	return result, nil
 }
 
 // GetPublishedBlogDetail retrieves a single SafeBlogAuthor entity from the database
@@ -114,6 +137,9 @@ func (service *BlogServiceImpl) ChangeBlogPublish(payload *inputs.BlogIDInput, u
 		// otherwise, reset the PublishedAt field to "January 1, year 1, 00:00:00 UTC" (invalid date)
 		blog.PublishedAt = time.Time{}
 	}
+
+	// change the updated at to newest date
+	blog.UpdatedAt = time.Now()
 
 	// save back to the database
 	if err := service.Repository.SaveBlog(blog); err != nil {

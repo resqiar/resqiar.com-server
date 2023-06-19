@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"resqiar.com-server/dto"
 	"resqiar.com-server/entities"
 	"resqiar.com-server/inputs"
 	"resqiar.com-server/repositories"
@@ -94,6 +95,56 @@ func TestGetBlogs(t *testing.T) {
 		assert.Error(t, err)
 
 		blogRepoTest.Mock.AssertCalled(t, "GetBlogs", published)
+	})
+}
+
+func TestGetBlogsID(t *testing.T) {
+	t.Run("Should return an array of published blog IDs", func(t *testing.T) {
+		published := true
+
+		expected := []entities.SafeBlogAuthor{
+			{
+				SafeBlog: entities.SafeBlog{
+					ID:          "example-of-id",
+					PublishedAt: time.Now(),
+				},
+			},
+			{
+				SafeBlog: entities.SafeBlog{
+					ID:          "example-of-id",
+					PublishedAt: time.Time{},
+				},
+			},
+		}
+
+		mock := blogRepoTest.Mock.On("GetBlogs", published).Return(expected, nil)
+
+		results, err := blogServiceTest.GetAllBlogsID()
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, results)
+		assert.IsType(t, []dto.SitemapOutput{}, results)
+
+		for _, result := range results {
+			assert.Equal(t, "example-of-id", result.ID)
+			assert.NotNil(t, result.UpdatedAt)
+		}
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
+	})
+
+	t.Run("Should return an error if query fails", func(t *testing.T) {
+		published := true
+		blogRepoTest.Mock.On("GetBlogs", published).Return(nil, errors.New("Something went wrong"))
+
+		results, err := blogServiceTest.GetAllBlogsID()
+
+		assert.Nil(t, results)
+		assert.NotNil(t, err)
+		assert.Error(t, err)
 	})
 }
 
