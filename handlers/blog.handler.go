@@ -11,6 +11,7 @@ type BlogHandler interface {
 	SendBlogList(c *fiber.Ctx) error
 	SendPublishedBlog(c *fiber.Ctx) error
 	SendPublishedBlogs(c *fiber.Ctx) error
+	SendPublishedBlogsID(c *fiber.Ctx) error
 	SendBlogCreate(c *fiber.Ctx) error
 	SendCurrentUserBlogs(c *fiber.Ctx) error
 	SendPublishBlog(c *fiber.Ctx) error
@@ -65,6 +66,18 @@ func (handler *BlogHandlerImpl) SendPublishedBlog(c *fiber.Ctx) error {
 func (handler *BlogHandlerImpl) SendPublishedBlogs(c *fiber.Ctx) error {
 	// send only PUBLISHED and SAFE blogs
 	result, err := handler.BlogService.GetAllBlogs(true)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+		"result": result,
+	})
+}
+
+func (handler *BlogHandlerImpl) SendPublishedBlogsID(c *fiber.Ctx) error {
+	// send only PUBLISHED IDs
+	result, err := handler.BlogService.GetAllBlogsID()
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}

@@ -9,6 +9,7 @@ import (
 
 type BlogService interface {
 	GetAllBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error)
+	GetAllBlogsID() ([]string, error)
 	GetBlogDetail(blogID string, published bool) (*entities.SafeBlogAuthor, error)
 	CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog, error)
 	EditBlog(payload *inputs.UpdateBlogInput, userID string) error
@@ -30,6 +31,23 @@ func (service *BlogServiceImpl) GetAllBlogs(onlyPublished bool) ([]entities.Safe
 	}
 
 	return blogs, nil
+}
+
+func (service *BlogServiceImpl) GetAllBlogsID() ([]string, error) {
+	blogs, err := service.GetAllBlogs(true) // get all published blogs
+	if err != nil {
+		return nil, err
+	}
+
+	var result []string
+
+	// only get the id, and append it to array if of string
+	for _, blog := range blogs {
+		ID := blog.ID
+		result = append(result, ID)
+	}
+
+	return result, nil
 }
 
 // GetPublishedBlogDetail retrieves a single SafeBlogAuthor entity from the database
