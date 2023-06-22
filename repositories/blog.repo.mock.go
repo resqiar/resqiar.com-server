@@ -70,6 +70,16 @@ func (repo *BlogRepoMock) GetCurrentUserBlogs(userID string) ([]entities.Blog, e
 	return nil, args.Error(1)
 }
 
+func (repo *BlogRepoMock) GetCurrentUserBlog(blogID string, userID string) (*entities.Blog, error) {
+	args := repo.Mock.Called(blogID, userID)
+
+	if args.Get(0) != nil {
+		return args.Get(0).(*entities.Blog), args.Error(1)
+	}
+
+	return nil, args.Error(1)
+}
+
 func (repo *BlogRepoMock) SaveBlog(blog *entities.Blog) error {
 	args := repo.Mock.Called(blog)
 

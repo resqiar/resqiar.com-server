@@ -401,6 +401,48 @@ func TestGetCurrentUserBlogs(t *testing.T) {
 	})
 }
 
+func TestGetCurrentUserBlog(t *testing.T) {
+	t.Run("Should return a blog own by current user", func(t *testing.T) {
+		userID := "example-of-id"
+		blogID := "example-of-blog-id"
+
+		expected := &entities.Blog{
+			AuthorID: userID,
+		}
+
+		mock := blogRepoTest.Mock.On("GetCurrentUserBlog", blogID, userID).Return(expected, nil)
+
+		results, err := blogServiceTest.GetCurrentUserBlog(blogID, userID)
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, results)
+		assert.Equal(t, results, expected)
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
+	})
+
+	t.Run("Should return error of if query fails", func(t *testing.T) {
+		userID := "example-of-wrong-id"
+		blogID := "example-of-blog-id"
+
+		mock := blogRepoTest.Mock.On("GetCurrentUserBlog", blogID, userID).Return(nil, errors.New("Record not found"))
+
+		results, err := blogServiceTest.GetCurrentUserBlog(blogID, userID)
+
+		assert.Nil(t, results)
+		assert.NotNil(t, err)
+		assert.Error(t, err)
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
+	})
+}
+
 func TestChangeBlogPublish(t *testing.T) {
 	t.Run("Should change a blog publication status from FALSE to TRUE", func(t *testing.T) {
 		userID := "example-of-user-id"
