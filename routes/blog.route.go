@@ -18,6 +18,7 @@ func InitBlogRoute(server *fiber.App, handler handlers.BlogHandler) {
 	blog.Post("/get", handler.SendPublishedBlog)
 
 	blog.Get("/list/current", middlewares.ProtectedRoute, handler.SendCurrentUserBlogs)
+	blog.Post("/get/preview", middlewares.ProtectedRoute, handler.SendCurrentUserBlog)
 	blog.Post("/get/my", middlewares.ProtectedRoute, handler.SendMyBlog)
 
 	blog.Post("/create", middlewares.ProtectedRoute, middlewares.TesterRoute, handler.SendBlogCreate)

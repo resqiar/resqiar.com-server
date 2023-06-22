@@ -17,6 +17,7 @@ type BlogRepository interface {
 	UpdateBlog(blogID string, safe *inputs.SafeUpdateBlogInput) error
 	GetByIDAndAuthor(blogID string, userID string) (*entities.Blog, error)
 	GetCurrentUserBlogs(userID string) ([]entities.Blog, error)
+	GetCurrentUserBlog(blogID string, userID string) (*entities.Blog, error)
 	SaveBlog(blog *entities.Blog) error
 }
 
@@ -198,6 +199,16 @@ func (repo *BlogRepoImpl) GetCurrentUserBlogs(userID string) ([]entities.Blog, e
 	}
 
 	return blogs, nil
+}
+
+func (repo *BlogRepoImpl) GetCurrentUserBlog(blogID string, userID string) (*entities.Blog, error) {
+	var blog entities.Blog
+
+	if err := repo.db.First(&blog, "id = ? AND author_id = ?", blogID, userID).Error; err != nil {
+		return nil, err
+	}
+
+	return &blog, nil
 }
 
 func (repo *BlogRepoImpl) SaveBlog(blog *entities.Blog) error {

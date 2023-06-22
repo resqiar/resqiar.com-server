@@ -15,6 +15,7 @@ type BlogService interface {
 	CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog, error)
 	EditBlog(payload *inputs.UpdateBlogInput, userID string) error
 	GetCurrentUserBlogs(userID string) ([]entities.Blog, error)
+	GetCurrentUserBlog(blogID string, userID string) (*entities.Blog, error)
 	ChangeBlogPublish(payload *inputs.BlogIDInput, userID string, publishState bool) error
 }
 
@@ -118,6 +119,15 @@ func (service *BlogServiceImpl) GetCurrentUserBlogs(userID string) ([]entities.B
 	}
 
 	return blogs, nil
+}
+
+func (service *BlogServiceImpl) GetCurrentUserBlog(blogID string, userID string) (*entities.Blog, error) {
+	blog, err := service.Repository.GetCurrentUserBlog(blogID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return blog, nil
 }
 
 func (service *BlogServiceImpl) ChangeBlogPublish(payload *inputs.BlogIDInput, userID string, publishState bool) error {
