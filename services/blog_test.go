@@ -34,7 +34,7 @@ func TestGetBlogs(t *testing.T) {
 			},
 		}
 
-		mock := blogRepoTest.Mock.On("GetBlogs", published).Return(expected, nil)
+		mock := blogRepoTest.Mock.On("GetBlogs", published, true).Return(expected, nil)
 
 		results, err := blogServiceTest.GetAllBlogs(published)
 
@@ -64,7 +64,7 @@ func TestGetBlogs(t *testing.T) {
 			},
 		}
 
-		mock := blogRepoTest.Mock.On("GetBlogs", published).Return(expected, nil)
+		mock := blogRepoTest.Mock.On("GetBlogs", published, true).Return(expected, nil)
 
 		results, err := blogServiceTest.GetAllBlogs(published)
 
@@ -86,7 +86,7 @@ func TestGetBlogs(t *testing.T) {
 	t.Run("Should return an error query fails", func(t *testing.T) {
 		published := false
 
-		blogRepoTest.Mock.On("GetBlogs", published).Return(nil, errors.New("Something went wrong"))
+		blogRepoTest.Mock.On("GetBlogs", published, true).Return(nil, errors.New("Something went wrong"))
 
 		results, err := blogServiceTest.GetAllBlogs(published)
 
@@ -94,7 +94,45 @@ func TestGetBlogs(t *testing.T) {
 		assert.NotNil(t, err)
 		assert.Error(t, err)
 
-		blogRepoTest.Mock.AssertCalled(t, "GetBlogs", published)
+		blogRepoTest.Mock.AssertCalled(t, "GetBlogs", published, true)
+	})
+
+	t.Run("Should return result in DESC order", func(t *testing.T) {
+		published := true
+
+		expected := []entities.SafeBlogAuthor{
+			{
+				SafeBlog: entities.SafeBlog{
+					UpdatedAt:   time.Now().AddDate(0, 0, -1), // yesterday
+					PublishedAt: time.Now(),
+				},
+			},
+			{
+				SafeBlog: entities.SafeBlog{
+					UpdatedAt:   time.Now().AddDate(0, 0, -7), // last week
+					PublishedAt: time.Now(),
+				},
+			},
+		}
+
+		mock := blogRepoTest.Mock.On("GetBlogs", published, true).Return(expected, nil)
+
+		results, err := blogServiceTest.GetAllBlogs(published)
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, results)
+		assert.Equal(t, results, expected)
+
+		// assert if the sortedResults are indeed DESC order
+		assert.True(t, results[0].UpdatedAt.After(results[1].UpdatedAt))
+
+		// assert if the mock function is called with DESC == true
+		blogRepoTest.Mock.AssertCalled(t, "GetBlogs", published, true)
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
 	})
 }
 
@@ -117,7 +155,7 @@ func TestGetBlogsID(t *testing.T) {
 			},
 		}
 
-		mock := blogRepoTest.Mock.On("GetBlogs", published).Return(expected, nil)
+		mock := blogRepoTest.Mock.On("GetBlogs", published, true).Return(expected, nil)
 
 		results, err := blogServiceTest.GetAllBlogsID()
 
@@ -138,7 +176,7 @@ func TestGetBlogsID(t *testing.T) {
 
 	t.Run("Should return an error if query fails", func(t *testing.T) {
 		published := true
-		blogRepoTest.Mock.On("GetBlogs", published).Return(nil, errors.New("Something went wrong"))
+		blogRepoTest.Mock.On("GetBlogs", published, true).Return(nil, errors.New("Something went wrong"))
 
 		results, err := blogServiceTest.GetAllBlogsID()
 

@@ -11,7 +11,7 @@ import (
 )
 
 type BlogRepository interface {
-	GetBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error)
+	GetBlogs(onlyPublished bool, desc bool) ([]entities.SafeBlogAuthor, error)
 	GetBlog(blogID string, published bool) (*entities.SafeBlogAuthor, error)
 	CreateBlog(input *entities.Blog) (*entities.Blog, error)
 	UpdateBlog(blogID string, safe *inputs.SafeUpdateBlogInput) error
@@ -31,7 +31,7 @@ func InitBlogRepo(db *gorm.DB) BlogRepository {
 	}
 }
 
-func (repo *BlogRepoImpl) GetBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error) {
+func (repo *BlogRepoImpl) GetBlogs(onlyPublished bool, orderDesc bool) ([]entities.SafeBlogAuthor, error) {
 	var blogs []entities.SafeBlogAuthor
 
 	query := repo.db.Model(&entities.Blog{})
@@ -47,6 +47,12 @@ func (repo *BlogRepoImpl) GetBlogs(onlyPublished bool) ([]entities.SafeBlogAutho
 	// If onlyPublished is true, add a condition to retrieve only published blogs
 	if onlyPublished {
 		query.Where("blogs.published = ?", true)
+	}
+
+	if orderDesc {
+		query.Order("updated_at DESC")
+	} else {
+		query.Order("updated_at ASC")
 	}
 
 	// Execute the query and retrieve the rows

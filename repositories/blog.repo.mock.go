@@ -10,8 +10,8 @@ type BlogRepoMock struct {
 	Mock mock.Mock
 }
 
-func (repo *BlogRepoMock) GetBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error) {
-	args := repo.Mock.Called(onlyPublished)
+func (repo *BlogRepoMock) GetBlogs(onlyPublished bool, desc bool) ([]entities.SafeBlogAuthor, error) {
+	args := repo.Mock.Called(onlyPublished, desc)
 
 	if args.Get(0) != nil {
 		return args.Get(0).([]entities.SafeBlogAuthor), args.Error(1)
