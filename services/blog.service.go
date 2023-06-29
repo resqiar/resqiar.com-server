@@ -27,7 +27,8 @@ type BlogServiceImpl struct {
 // If onlyPublished is true, it retrieves only the published blogs, otherwise everything.
 // It returns the list of blogs and any error encountered during the process.
 func (service *BlogServiceImpl) GetAllBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error) {
-	blogs, err := service.Repository.GetBlogs(onlyPublished)
+	// Get all only-published blogs with the desc order (true)
+	blogs, err := service.Repository.GetBlogs(onlyPublished, true)
 	if err != nil {
 		return nil, err
 	}
