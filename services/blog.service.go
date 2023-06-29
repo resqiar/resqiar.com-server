@@ -114,7 +114,7 @@ func (service *BlogServiceImpl) EditBlog(payload *inputs.UpdateBlogInput, userID
 }
 
 func (service *BlogServiceImpl) GetCurrentUserBlogs(userID string) ([]entities.Blog, error) {
-	blogs, err := service.Repository.GetCurrentUserBlogs(userID)
+	blogs, err := service.Repository.GetCurrentUserBlogs(userID, true)
 	if err != nil {
 		return nil, err
 	}
