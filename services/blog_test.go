@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"resqiar.com-server/constants"
 	"resqiar.com-server/dto"
 	"resqiar.com-server/entities"
 	"resqiar.com-server/inputs"
@@ -36,7 +37,7 @@ func TestGetBlogs(t *testing.T) {
 
 		mock := blogRepoTest.Mock.On("GetBlogs", published, true).Return(expected, nil)
 
-		results, err := blogServiceTest.GetAllBlogs(published)
+		results, err := blogServiceTest.GetAllBlogs(published, constants.DESC)
 
 		assert.Nil(t, err)
 		assert.NotEmpty(t, results)
@@ -66,7 +67,7 @@ func TestGetBlogs(t *testing.T) {
 
 		mock := blogRepoTest.Mock.On("GetBlogs", published, true).Return(expected, nil)
 
-		results, err := blogServiceTest.GetAllBlogs(published)
+		results, err := blogServiceTest.GetAllBlogs(published, constants.DESC)
 
 		assert.Nil(t, err)
 		assert.NotEmpty(t, results)
@@ -88,7 +89,7 @@ func TestGetBlogs(t *testing.T) {
 
 		blogRepoTest.Mock.On("GetBlogs", published, true).Return(nil, errors.New("Something went wrong"))
 
-		results, err := blogServiceTest.GetAllBlogs(published)
+		results, err := blogServiceTest.GetAllBlogs(published, constants.DESC)
 
 		assert.Nil(t, results)
 		assert.NotNil(t, err)
@@ -117,7 +118,7 @@ func TestGetBlogs(t *testing.T) {
 
 		mock := blogRepoTest.Mock.On("GetBlogs", published, true).Return(expected, nil)
 
-		results, err := blogServiceTest.GetAllBlogs(published)
+		results, err := blogServiceTest.GetAllBlogs(published, constants.DESC)
 
 		assert.Nil(t, err)
 		assert.NotEmpty(t, results)
@@ -128,6 +129,44 @@ func TestGetBlogs(t *testing.T) {
 
 		// assert if the mock function is called with DESC == true
 		blogRepoTest.Mock.AssertCalled(t, "GetBlogs", published, true)
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
+	})
+
+	t.Run("Should return result in ASC order", func(t *testing.T) {
+		published := true
+
+		expected := []entities.SafeBlogAuthor{
+			{
+				SafeBlog: entities.SafeBlog{
+					UpdatedAt:   time.Now().AddDate(0, 0, -7), // last week
+					PublishedAt: time.Now(),
+				},
+			},
+			{
+				SafeBlog: entities.SafeBlog{
+					UpdatedAt:   time.Now().AddDate(0, 0, -1), // yesterday
+					PublishedAt: time.Now(),
+				},
+			},
+		}
+
+		mock := blogRepoTest.Mock.On("GetBlogs", published, false).Return(expected, nil)
+
+		results, err := blogServiceTest.GetAllBlogs(published, constants.ASC)
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, results)
+		assert.Equal(t, results, expected)
+
+		// assert if the sortedResults are indeed ASC order
+		assert.True(t, results[0].UpdatedAt.Before(results[1].UpdatedAt))
+
+		// assert if the mock function is called with DESC == false
+		blogRepoTest.Mock.AssertCalled(t, "GetBlogs", published, false)
 
 		t.Cleanup(func() {
 			// Cleanup mocking
@@ -409,7 +448,7 @@ func TestGetCurrentUserBlogs(t *testing.T) {
 
 		mock := blogRepoTest.Mock.On("GetCurrentUserBlogs", userID, true).Return(expected, nil)
 
-		results, err := blogServiceTest.GetCurrentUserBlogs(userID)
+		results, err := blogServiceTest.GetCurrentUserBlogs(userID, constants.DESC)
 
 		assert.Nil(t, err)
 		assert.NotEmpty(t, results)
@@ -426,7 +465,7 @@ func TestGetCurrentUserBlogs(t *testing.T) {
 
 		mock := blogRepoTest.Mock.On("GetCurrentUserBlogs", userID, true).Return(nil, errors.New("Record not found"))
 
-		results, err := blogServiceTest.GetCurrentUserBlogs(userID)
+		results, err := blogServiceTest.GetCurrentUserBlogs(userID, constants.DESC)
 
 		assert.Nil(t, results)
 		assert.NotNil(t, err)
@@ -452,7 +491,7 @@ func TestGetCurrentUserBlogs(t *testing.T) {
 
 		mock := blogRepoTest.Mock.On("GetCurrentUserBlogs", userID, true).Return(expected, nil)
 
-		results, err := blogServiceTest.GetCurrentUserBlogs(userID)
+		results, err := blogServiceTest.GetCurrentUserBlogs(userID, constants.DESC)
 
 		assert.Nil(t, err)
 		assert.NotEmpty(t, results)
@@ -463,6 +502,38 @@ func TestGetCurrentUserBlogs(t *testing.T) {
 
 		// assert if the mock function is called with DESC == true
 		blogRepoTest.Mock.AssertCalled(t, "GetCurrentUserBlogs", userID, true)
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
+	})
+
+	t.Run("Should return result in ASC order", func(t *testing.T) {
+		userID := "example-of-id"
+
+		expected := []entities.Blog{
+			{
+				UpdatedAt: time.Now().AddDate(0, 0, -7), // last week
+			},
+			{
+				UpdatedAt: time.Now().AddDate(0, 0, -1), // yesterday
+			},
+		}
+
+		mock := blogRepoTest.Mock.On("GetCurrentUserBlogs", userID, false).Return(expected, nil)
+
+		results, err := blogServiceTest.GetCurrentUserBlogs(userID, constants.ASC)
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, results)
+		assert.Equal(t, results, expected)
+
+		// assert if the sortedResults are indeed ASC order
+		assert.True(t, results[0].UpdatedAt.Before(results[1].UpdatedAt))
+
+		// assert if the mock function is called with DESC == false
+		blogRepoTest.Mock.AssertCalled(t, "GetCurrentUserBlogs", userID, false)
 
 		t.Cleanup(func() {
 			// Cleanup mocking
