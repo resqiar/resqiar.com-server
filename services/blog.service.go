@@ -1,20 +1,22 @@
 package services
 
 import (
+	"time"
+
+	"resqiar.com-server/constants"
 	"resqiar.com-server/dto"
 	"resqiar.com-server/entities"
 	"resqiar.com-server/inputs"
 	"resqiar.com-server/repositories"
-	"time"
 )
 
 type BlogService interface {
-	GetAllBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error)
+	GetAllBlogs(onlyPublished bool, order constants.Order) ([]entities.SafeBlogAuthor, error)
 	GetAllBlogsID() ([]dto.SitemapOutput, error)
 	GetBlogDetail(blogID string, published bool) (*entities.SafeBlogAuthor, error)
 	CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog, error)
 	EditBlog(payload *inputs.UpdateBlogInput, userID string) error
-	GetCurrentUserBlogs(userID string) ([]entities.Blog, error)
+	GetCurrentUserBlogs(userID string, order constants.Order) ([]entities.Blog, error)
 	GetCurrentUserBlog(blogID string, userID string) (*entities.Blog, error)
 	ChangeBlogPublish(payload *inputs.BlogIDInput, userID string, publishState bool) error
 }
@@ -26,9 +28,16 @@ type BlogServiceImpl struct {
 // GetAllBlogs retrieves a list of SafeBlogAuthor entities from the database.
 // If onlyPublished is true, it retrieves only the published blogs, otherwise everything.
 // It returns the list of blogs and any error encountered during the process.
-func (service *BlogServiceImpl) GetAllBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error) {
-	// Get all only-published blogs with the desc order (true)
-	blogs, err := service.Repository.GetBlogs(onlyPublished, true)
+func (service *BlogServiceImpl) GetAllBlogs(onlyPublished bool, dataOrder constants.Order) ([]entities.SafeBlogAuthor, error) {
+	// default data-order to true (DESC)
+	order := true
+
+	if dataOrder == constants.ASC {
+		order = false
+	}
+
+	// Get all only-published blogs with the desc order true/false (default to desc / true)
+	blogs, err := service.Repository.GetBlogs(onlyPublished, order)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +46,9 @@ func (service *BlogServiceImpl) GetAllBlogs(onlyPublished bool) ([]entities.Safe
 }
 
 func (service *BlogServiceImpl) GetAllBlogsID() ([]dto.SitemapOutput, error) {
-	blogs, err := service.GetAllBlogs(true) // get all published blogs
+	// get all published blogs ID
+	// always set to DESC
+	blogs, err := service.GetAllBlogs(true, constants.DESC)
 	if err != nil {
 		return nil, err
 	}
@@ -113,8 +124,15 @@ func (service *BlogServiceImpl) EditBlog(payload *inputs.UpdateBlogInput, userID
 	return nil
 }
 
-func (service *BlogServiceImpl) GetCurrentUserBlogs(userID string) ([]entities.Blog, error) {
-	blogs, err := service.Repository.GetCurrentUserBlogs(userID, true)
+func (service *BlogServiceImpl) GetCurrentUserBlogs(userID string, dataOrder constants.Order) ([]entities.Blog, error) {
+	// default data-order to true (DESC)
+	order := true
+
+	if dataOrder == constants.ASC {
+		order = false
+	}
+
+	blogs, err := service.Repository.GetCurrentUserBlogs(userID, order)
 	if err != nil {
 		return nil, err
 	}
