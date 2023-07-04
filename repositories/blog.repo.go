@@ -2,21 +2,23 @@ package repositories
 
 import (
 	"errors"
+	"fmt"
+	"time"
+
 	"resqiar.com-server/entities"
 	"resqiar.com-server/inputs"
-	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
 type BlogRepository interface {
-	GetBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error)
+	GetBlogs(onlyPublished bool, desc bool) ([]entities.SafeBlogAuthor, error)
 	GetBlog(blogID string, published bool) (*entities.SafeBlogAuthor, error)
 	CreateBlog(input *entities.Blog) (*entities.Blog, error)
 	UpdateBlog(blogID string, safe *inputs.SafeUpdateBlogInput) error
 	GetByIDAndAuthor(blogID string, userID string) (*entities.Blog, error)
-	GetCurrentUserBlogs(userID string) ([]entities.Blog, error)
+	GetCurrentUserBlogs(userID string, desc bool) ([]entities.Blog, error)
 	GetCurrentUserBlog(blogID string, userID string) (*entities.Blog, error)
 	SaveBlog(blog *entities.Blog) error
 }
@@ -31,7 +33,7 @@ func InitBlogRepo(db *gorm.DB) BlogRepository {
 	}
 }
 
-func (repo *BlogRepoImpl) GetBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error) {
+func (repo *BlogRepoImpl) GetBlogs(onlyPublished bool, orderDesc bool) ([]entities.SafeBlogAuthor, error) {
 	var blogs []entities.SafeBlogAuthor
 
 	query := repo.db.Model(&entities.Blog{})
@@ -47,6 +49,12 @@ func (repo *BlogRepoImpl) GetBlogs(onlyPublished bool) ([]entities.SafeBlogAutho
 	// If onlyPublished is true, add a condition to retrieve only published blogs
 	if onlyPublished {
 		query.Where("blogs.published = ?", true)
+	}
+
+	if orderDesc {
+		query.Order("updated_at DESC")
+	} else {
+		query.Order("updated_at ASC")
 	}
 
 	// Execute the query and retrieve the rows
@@ -191,10 +199,21 @@ func (repo *BlogRepoImpl) UpdateBlog(blogID string, safe *inputs.SafeUpdateBlogI
 	return nil
 }
 
-func (repo *BlogRepoImpl) GetCurrentUserBlogs(userID string) ([]entities.Blog, error) {
+func (repo *BlogRepoImpl) GetCurrentUserBlogs(userID string, desc bool) ([]entities.Blog, error) {
 	var blogs []entities.Blog
 
-	if err := repo.db.Omit("content").Find(&blogs, "author_id = ?", userID).Error; err != nil {
+	// set default query order as desc (newest first)
+	queryOrder := "DESC"
+
+	if !desc {
+		queryOrder = "ASC"
+	}
+
+	if err := repo.db.
+		Omit("content").
+		Order(fmt.Sprintf("updated_at %s", queryOrder)).
+		Find(&blogs, "author_id = ?", userID).
+		Error; err != nil {
 		return nil, err
 	}
 

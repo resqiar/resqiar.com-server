@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"resqiar.com-server/constants"
 	"resqiar.com-server/inputs"
 	"resqiar.com-server/services"
 
@@ -27,7 +28,14 @@ type BlogHandlerImpl struct {
 }
 
 func (handler *BlogHandlerImpl) SendBlogList(c *fiber.Ctx) error {
-	result, err := handler.BlogService.GetAllBlogs(false)
+	var qOrder string = c.Query("order", "DESC")
+
+	// if order query does not exist in the map, set to default value
+	if _, exist := constants.ValidOrders[qOrder]; !exist {
+		qOrder = string(constants.DESC)
+	}
+
+	result, err := handler.BlogService.GetAllBlogs(false, constants.Order(qOrder))
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -65,8 +73,15 @@ func (handler *BlogHandlerImpl) SendPublishedBlog(c *fiber.Ctx) error {
 }
 
 func (handler *BlogHandlerImpl) SendPublishedBlogs(c *fiber.Ctx) error {
+	var qOrder string = c.Query("order", "DESC")
+
+	// if order query does not exist in the map, set to default value
+	if _, exist := constants.ValidOrders[qOrder]; !exist {
+		qOrder = string(constants.DESC)
+	}
+
 	// send only PUBLISHED and SAFE blogs
-	result, err := handler.BlogService.GetAllBlogs(true)
+	result, err := handler.BlogService.GetAllBlogs(true, constants.Order(qOrder))
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -123,7 +138,14 @@ func (handler *BlogHandlerImpl) SendBlogCreate(c *fiber.Ctx) error {
 func (handler *BlogHandlerImpl) SendCurrentUserBlogs(c *fiber.Ctx) error {
 	userID := c.Locals("userID")
 
-	result, err := handler.BlogService.GetCurrentUserBlogs(userID.(string))
+	var qOrder string = c.Query("order", "DESC")
+
+	// if order query does not exist in the map, set to default value
+	if _, exist := constants.ValidOrders[qOrder]; !exist {
+		qOrder = string(constants.DESC)
+	}
+
+	result, err := handler.BlogService.GetCurrentUserBlogs(userID.(string), constants.Order(qOrder))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
 			"error": err,

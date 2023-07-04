@@ -10,8 +10,8 @@ type BlogRepoMock struct {
 	Mock mock.Mock
 }
 
-func (repo *BlogRepoMock) GetBlogs(onlyPublished bool) ([]entities.SafeBlogAuthor, error) {
-	args := repo.Mock.Called(onlyPublished)
+func (repo *BlogRepoMock) GetBlogs(onlyPublished bool, desc bool) ([]entities.SafeBlogAuthor, error) {
+	args := repo.Mock.Called(onlyPublished, desc)
 
 	if args.Get(0) != nil {
 		return args.Get(0).([]entities.SafeBlogAuthor), args.Error(1)
@@ -60,8 +60,8 @@ func (repo *BlogRepoMock) GetByIDAndAuthor(blogID string, userID string) (*entit
 	return nil, args.Error(1)
 }
 
-func (repo *BlogRepoMock) GetCurrentUserBlogs(userID string) ([]entities.Blog, error) {
-	args := repo.Mock.Called(userID)
+func (repo *BlogRepoMock) GetCurrentUserBlogs(userID string, desc bool) ([]entities.Blog, error) {
+	args := repo.Mock.Called(userID, desc)
 
 	if args.Get(0) != nil {
 		return args.Get(0).([]entities.Blog), args.Error(1)
