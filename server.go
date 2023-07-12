@@ -8,6 +8,7 @@ import (
 	"resqiar.com-server/libs"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/joho/godotenv"
@@ -28,6 +29,11 @@ func main() {
 
 	// Setup rate-limiter
 	server.Use(limiter.New(config.RateLimiterConfig()))
+
+	// Setup compression
+	server.Use(compress.New(compress.Config{
+		Level: 2, // best compression
+	}))
 
 	DB := db.InitDB() // init Postgres db
 	db.InitRedis()    // init Redis db
