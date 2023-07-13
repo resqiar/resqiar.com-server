@@ -12,7 +12,7 @@ require (
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/oauth2 v0.8.0
-	gorm.io/driver/postgres v1.5.0
+	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.25.1
 )
 
