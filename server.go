@@ -2,12 +2,15 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"resqiar.com-server/config"
 	"resqiar.com-server/db"
 	"resqiar.com-server/libs"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cache"
+	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/joho/godotenv"
@@ -28,6 +31,17 @@ func main() {
 
 	// Setup rate-limiter
 	server.Use(limiter.New(config.RateLimiterConfig()))
+
+	// Setup compression
+	server.Use(compress.New(compress.Config{
+		Level: 2, // best compression
+	}))
+
+	// Setup caching
+	server.Use(cache.New(cache.Config{
+		Expiration:   30 * time.Minute,
+		CacheControl: true,
+	}))
 
 	DB := db.InitDB() // init Postgres db
 	db.InitRedis()    // init Redis db

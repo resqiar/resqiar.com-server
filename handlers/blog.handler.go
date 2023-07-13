@@ -46,23 +46,9 @@ func (handler *BlogHandlerImpl) SendBlogList(c *fiber.Ctx) error {
 }
 
 func (handler *BlogHandlerImpl) SendPublishedBlog(c *fiber.Ctx) error {
-	// define body payload
-	var payload inputs.BlogIDInput
+	blogID := c.Params("id")
 
-	// bind the body parser into payload
-	if err := c.BodyParser(&payload); err != nil {
-		// send raw error (unprocessable entity)
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
-
-	// validate the payload using class-validator
-	if err := handler.UtilService.ValidateInput(payload); err != "" {
-		return c.Status(fiber.StatusInternalServerError).JSON(&fiber.Map{
-			"error": err,
-		})
-	}
-
-	result, err := handler.BlogService.GetBlogDetail(payload.ID, true)
+	result, err := handler.BlogService.GetBlogDetail(blogID, true)
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
 	}
