@@ -39,6 +39,10 @@ func main() {
 
 	// Setup caching
 	server.Use(cache.New(cache.Config{
+		Next: func(c *fiber.Ctx) bool {
+			URL := string(c.Request().URI().Path())
+			return libs.ShouldNotCached(URL)
+		},
 		Expiration:   30 * time.Minute,
 		CacheControl: true,
 	}))
