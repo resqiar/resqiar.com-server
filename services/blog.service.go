@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"time"
 
 	"resqiar.com-server/constants"
@@ -22,7 +23,8 @@ type BlogService interface {
 }
 
 type BlogServiceImpl struct {
-	Repository repositories.BlogRepository
+	UtilService UtilService
+	Repository  repositories.BlogRepository
 }
 
 // GetAllBlogs retrieves a list of SafeBlogAuthor entities from the database.
@@ -149,21 +151,47 @@ func (service *BlogServiceImpl) GetCurrentUserBlog(blogID string, userID string)
 	return blog, nil
 }
 
+func (service *BlogServiceImpl) GetCurrentUserSlugs(slug string, userID string) ([]entities.Blog, error) {
+	exist, err := service.Repository.GetCurrentUserSlugs(slug, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return exist, nil
+}
+
 func (service *BlogServiceImpl) ChangeBlogPublish(payload *inputs.BlogIDInput, userID string, publishState bool) error {
 	blog, err := service.Repository.GetByIDAndAuthor(payload.ID, userID)
 	if err != nil {
 		return err
 	}
 
+	currentTime := time.Now()
+
 	// update published state based on given param
 	blog.Published = publishState
 
-	// if publish state is true
-	// then we need to update the PublishedAt field
 	if publishState {
-		blog.PublishedAt = time.Now()
+		generatedSlug := service.UtilService.FormatToURL(blog.Title)
+
+		slugExist, err := service.GetCurrentUserSlugs(generatedSlug, userID)
+		if err != nil {
+			return err
+		}
+
+		if len(slugExist) == 0 {
+			blog.Slug = generatedSlug
+		} else {
+			blog.Slug = fmt.Sprintf("%s-%d", generatedSlug, currentTime.Unix())
+		}
+
+		// we need to update the PublishedAt field
+		blog.PublishedAt = currentTime
 	} else {
-		// otherwise, reset the PublishedAt field to "January 1, year 1, 00:00:00 UTC" (invalid date)
+		// reset slug
+		blog.Slug = ""
+
+		// reset the PublishedAt field to "January 1, year 1, 00:00:00 UTC" (invalid date)
 		blog.PublishedAt = time.Time{}
 	}
 

@@ -4,6 +4,7 @@ import "time"
 
 type SafeBlog struct {
 	ID          string
+	Slug        string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	PublishedAt time.Time

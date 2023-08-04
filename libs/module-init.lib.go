@@ -21,7 +21,7 @@ func ModuleInit(server *fiber.App, DB *gorm.DB) {
 		Repository:  userRepository,
 		UtilService: &utilService,
 	}
-	blogService := services.BlogServiceImpl{Repository: blogRepository}
+	blogService := services.BlogServiceImpl{UtilService: &utilService, Repository: blogRepository}
 	authService := services.AuthServiceImpl{}
 
 	// Init handlers
