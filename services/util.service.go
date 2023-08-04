@@ -10,17 +10,23 @@ import (
 
 type UtilService interface {
 	FormatUsername(name string) string
+	FormatToURL(value string) string
 	GenerateRandomID(length int) string
 	ValidateInput(payload any) string
 }
 
 type UtilServiceImpl struct{}
 
+var (
+	removeNonAlphaNumRegex    = regexp.MustCompile("[^ a-zA-Z0-9]")
+	removeMultipleSpacesRegex = regexp.MustCompile(`\s+`)
+)
+
 func (service *UtilServiceImpl) FormatUsername(name string) string {
 	// remove any non-alphanumeric characters from the string
 	// example "?-_!" should be ""
 	// example "a?!;';';'b" should be "ab"
-	validChars := regexp.MustCompile("[^ a-zA-Z0-9]").ReplaceAllString(name, "")
+	validChars := removeNonAlphaNumRegex.ReplaceAllString(name, "")
 	formatted := validChars
 
 	// trim spaces
@@ -28,7 +34,7 @@ func (service *UtilServiceImpl) FormatUsername(name string) string {
 
 	// trim spaces between chars to maxed only one space
 	// example "a       b" should be "a b"
-	singleSpace := regexp.MustCompile(`\s+`).ReplaceAllString(formatted, " ")
+	singleSpace := removeMultipleSpacesRegex.ReplaceAllString(formatted, " ")
 	formatted = singleSpace
 
 	// format name to lowercase
@@ -37,6 +43,15 @@ func (service *UtilServiceImpl) FormatUsername(name string) string {
 	// format name to replace all spaces into _ (underscore)
 	formatted = strings.ReplaceAll(formatted, " ", "_")
 
+	return formatted
+}
+
+func (service *UtilServiceImpl) FormatToURL(value string) string {
+	formatted := removeNonAlphaNumRegex.ReplaceAllString(value, "")
+	formatted = strings.ToLower(formatted)
+	formatted = strings.TrimSpace(formatted)
+	formatted = removeMultipleSpacesRegex.ReplaceAllString(formatted, " ")
+	formatted = strings.ReplaceAll(formatted, " ", "-")
 	return formatted
 }
 
