@@ -39,6 +39,34 @@ func TestFormatUsername(t *testing.T) {
 	}
 }
 
+func TestFormatToURL(t *testing.T) {
+	testCases := []struct {
+		input    string
+		expected string
+	}{
+		{"Exploring OAuth2 Protocol: What, Why, and How?", "exploring-oauth2-protocol-what-why-and-how"},
+		{"					Exploring OAuth2 Protocol: What, Why, and How?		", "exploring-oauth2-protocol-what-why-and-how"},
+		{"					Exploring OAuth2				 Protocol: What, Why, and How?		", "exploring-oauth2-protocol-what-why-and-how"},
+		{"					Exploring OAuth2				 Protocol: What, Why, and How?		", "exploring-oauth2-protocol-what-why-and-how"},
+		{"Asynchronous Programming in JavaScript Ecosystem", "asynchronous-programming-in-javascript-ecosystem"},
+		{"<><><?><><)_(*&&^%^&%^$%#$%%^&(()##$%^&*(&", ""},
+		{"TROUBLE MAKER IS ON THE 666 W4Y", "trouble-maker-is-on-the-666-w4y"},
+		{"Wh  y  ? ev 3       erything    mu    s-t be not th e    best			         ", "wh-y-ev-3-erything-mu-st-be-not-th-e-best"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("Should format: %s INTO %s", tc.input, tc.expected), func(t *testing.T) {
+			generated := utilService.FormatToURL(tc.input)
+
+			// if the value is Nil, then stop the test
+			require.NotNil(t, generated)
+
+			// assert if the value is as expected
+			assert.Equal(t, tc.expected, generated)
+		})
+	}
+}
+
 func TestGenerateRandomID(t *testing.T) {
 	t.Run("Should not return Nil or Empty", func(t *testing.T) {
 		generated := utilService.GenerateRandomID(8)
