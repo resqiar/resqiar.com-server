@@ -19,6 +19,7 @@ type BlogRepository interface {
 	UpdateBlog(blogID string, safe *inputs.SafeUpdateBlogInput) error
 	GetByIDAndAuthor(blogID string, userID string) (*entities.Blog, error)
 	GetCurrentUserBlogs(userID string, desc bool) ([]entities.Blog, error)
+	GetCurrentUserSlugs(slug string, userID string) ([]entities.Blog, error)
 	GetCurrentUserBlog(blogID string, userID string) (*entities.Blog, error)
 	SaveBlog(blog *entities.Blog) error
 }
@@ -39,7 +40,7 @@ func (repo *BlogRepoImpl) GetBlogs(onlyPublished bool, orderDesc bool) ([]entiti
 	query := repo.db.Model(&entities.Blog{})
 
 	// Define SELECT and JOIN for database query operations
-	BLOG_SELECT_SQL := "blogs.id, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.cover_url, blogs.author_id, "
+	BLOG_SELECT_SQL := "blogs.id, blogs.slug, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.cover_url, blogs.author_id, "
 	AUTHOR_SELECT_SQL := "users.id AS author_id, users.username AS author_username, users.created_at AS author_created_at, users.bio AS author_bio, users.picture_url AS author_picture_url, users.is_tester AS author_is_tester"
 	JOIN_SQL := "JOIN users ON blogs.author_id = users.id"
 
@@ -106,7 +107,7 @@ func (repo *BlogRepoImpl) GetBlog(blogID string, published bool) (*entities.Safe
 	var blog entities.SafeBlogAuthor
 
 	// Define SELECT and JOIN for database query operations
-	BLOG_SELECT_SQL := "blogs.id, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.content, blogs.cover_url, blogs.author_id, "
+	BLOG_SELECT_SQL := "blogs.id, blogs.slug, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.content, blogs.cover_url, blogs.author_id, "
 	AUTHOR_SELECT_SQL := "users.id AS author_id, users.username AS author_username, users.created_at AS author_created_at, users.bio AS author_bio, users.picture_url AS author_picture_url, users.is_tester AS author_is_tester"
 	JOIN_SQL := "JOIN users ON blogs.author_id = users.id"
 
@@ -214,6 +215,16 @@ func (repo *BlogRepoImpl) GetCurrentUserBlogs(userID string, desc bool) ([]entit
 		Order(fmt.Sprintf("updated_at %s", queryOrder)).
 		Find(&blogs, "author_id = ?", userID).
 		Error; err != nil {
+		return nil, err
+	}
+
+	return blogs, nil
+}
+
+func (repo *BlogRepoImpl) GetCurrentUserSlugs(slug string, userID string) ([]entities.Blog, error) {
+	var blogs []entities.Blog
+
+	if err := repo.db.Find(&blogs, "slug = ? AND author_id = ?", slug, userID).Error; err != nil {
 		return nil, err
 	}
 

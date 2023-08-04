@@ -9,6 +9,7 @@ import (
 
 type Blog struct {
 	ID          string `gorm:"type:text; primaryKey; unique; not null"`
+	Slug        string `gorm:"type:varchar(100)"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	PublishedAt time.Time
