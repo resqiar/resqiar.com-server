@@ -46,9 +46,10 @@ func (handler *BlogHandlerImpl) SendBlogList(c *fiber.Ctx) error {
 }
 
 func (handler *BlogHandlerImpl) SendPublishedBlog(c *fiber.Ctx) error {
-	blogID := c.Params("id")
+	blogAuthor := c.Params("author")
+	blogSlug := c.Params("slug")
 
-	result, err := handler.BlogService.GetBlogDetail(blogID, true)
+	result, err := handler.BlogService.GetBlogDetail("", blogAuthor, blogSlug, true)
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
 	}
@@ -248,7 +249,7 @@ func (handler *BlogHandlerImpl) SendMyBlog(c *fiber.Ctx) error {
 		})
 	}
 
-	blog, err := handler.BlogService.GetBlogDetail(payload.ID, false)
+	blog, err := handler.BlogService.GetBlogDetail(payload.ID, "", "", false)
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
 	}

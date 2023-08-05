@@ -14,7 +14,7 @@ import (
 type BlogService interface {
 	GetAllBlogs(onlyPublished bool, order constants.Order) ([]entities.SafeBlogAuthor, error)
 	GetAllBlogsID() ([]dto.SitemapOutput, error)
-	GetBlogDetail(blogID string, published bool) (*entities.SafeBlogAuthor, error)
+	GetBlogDetail(useID string, blogAuthor string, blogSlug string, published bool) (*entities.SafeBlogAuthor, error)
 	CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog, error)
 	EditBlog(payload *inputs.UpdateBlogInput, userID string) error
 	GetCurrentUserBlogs(userID string, order constants.Order) ([]entities.Blog, error)
@@ -74,8 +74,8 @@ func (service *BlogServiceImpl) GetAllBlogsID() ([]dto.SitemapOutput, error) {
 // based on the provided blogID.
 // It returns the retrieved blog and any error encountered during the process.
 // If no blog is found or an error occurs, it returns an appropriate error.
-func (service *BlogServiceImpl) GetBlogDetail(blogID string, published bool) (*entities.SafeBlogAuthor, error) {
-	blog, err := service.Repository.GetBlog(blogID, published)
+func (service *BlogServiceImpl) GetBlogDetail(useID string, blogAuthor string, blogSlug string, published bool) (*entities.SafeBlogAuthor, error) {
+	blog, err := service.Repository.GetBlog(useID, blogAuthor, blogSlug, published)
 	if err != nil {
 		return nil, err
 	}
