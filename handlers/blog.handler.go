@@ -12,7 +12,7 @@ type BlogHandler interface {
 	SendBlogList(c *fiber.Ctx) error
 	SendPublishedBlog(c *fiber.Ctx) error
 	SendPublishedBlogs(c *fiber.Ctx) error
-	SendPublishedBlogsID(c *fiber.Ctx) error
+	SendPublishedSlugs(c *fiber.Ctx) error
 	SendBlogCreate(c *fiber.Ctx) error
 	SendCurrentUserBlogs(c *fiber.Ctx) error
 	SendCurrentUserBlog(c *fiber.Ctx) error
@@ -78,9 +78,9 @@ func (handler *BlogHandlerImpl) SendPublishedBlogs(c *fiber.Ctx) error {
 	})
 }
 
-func (handler *BlogHandlerImpl) SendPublishedBlogsID(c *fiber.Ctx) error {
+func (handler *BlogHandlerImpl) SendPublishedSlugs(c *fiber.Ctx) error {
 	// send only PUBLISHED IDs
-	result, err := handler.BlogService.GetAllBlogsID()
+	result, err := handler.BlogService.GetAllSlugs()
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
