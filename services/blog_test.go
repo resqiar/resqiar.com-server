@@ -176,35 +176,42 @@ func TestGetBlogs(t *testing.T) {
 	})
 }
 
-func TestGetBlogsID(t *testing.T) {
-	t.Run("Should return an array of published blog IDs", func(t *testing.T) {
+func TestGetAllSlugs(t *testing.T) {
+	t.Run("Should return an array of published blogs with AuthorUsername, Slug, and UpdatedAt", func(t *testing.T) {
 		published := true
 
 		expected := []entities.SafeBlogAuthor{
 			{
 				SafeBlog: entities.SafeBlog{
-					ID:          "example-of-id",
+					Slug:        "example-of-slug",
 					PublishedAt: time.Now(),
+				},
+				Author: entities.SafeUser{
+					Username: "User123",
 				},
 			},
 			{
 				SafeBlog: entities.SafeBlog{
-					ID:          "example-of-id",
+					Slug:        "example-of-slug",
 					PublishedAt: time.Time{},
+				},
+				Author: entities.SafeUser{
+					Username: "User123",
 				},
 			},
 		}
 
 		mock := blogRepoTest.Mock.On("GetBlogs", published, true).Return(expected, nil)
 
-		results, err := blogServiceTest.GetAllBlogsID()
+		results, err := blogServiceTest.GetAllSlugs()
 
 		assert.Nil(t, err)
 		assert.NotEmpty(t, results)
 		assert.IsType(t, []dto.SitemapOutput{}, results)
 
 		for _, result := range results {
-			assert.Equal(t, "example-of-id", result.ID)
+			assert.Equal(t, "example-of-slug", result.Slug)
+			assert.Equal(t, "User123", result.AuthorUsername)
 			assert.NotNil(t, result.UpdatedAt)
 		}
 
@@ -218,7 +225,7 @@ func TestGetBlogsID(t *testing.T) {
 		published := true
 		blogRepoTest.Mock.On("GetBlogs", published, true).Return(nil, errors.New("Something went wrong"))
 
-		results, err := blogServiceTest.GetAllBlogsID()
+		results, err := blogServiceTest.GetAllSlugs()
 
 		assert.Nil(t, results)
 		assert.NotNil(t, err)
