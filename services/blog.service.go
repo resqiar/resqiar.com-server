@@ -13,7 +13,7 @@ import (
 
 type BlogService interface {
 	GetAllBlogs(onlyPublished bool, order constants.Order) ([]entities.SafeBlogAuthor, error)
-	GetAllBlogsID() ([]dto.SitemapOutput, error)
+	GetAllSlugs() ([]dto.SitemapOutput, error)
 	GetBlogDetail(useID string, blogAuthor string, blogSlug string, published bool) (*entities.SafeBlogAuthor, error)
 	CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog, error)
 	EditBlog(payload *inputs.UpdateBlogInput, userID string) error
@@ -47,7 +47,7 @@ func (service *BlogServiceImpl) GetAllBlogs(onlyPublished bool, dataOrder consta
 	return blogs, nil
 }
 
-func (service *BlogServiceImpl) GetAllBlogsID() ([]dto.SitemapOutput, error) {
+func (service *BlogServiceImpl) GetAllSlugs() ([]dto.SitemapOutput, error) {
 	// get all published blogs ID
 	// always set to DESC
 	blogs, err := service.GetAllBlogs(true, constants.DESC)
@@ -60,8 +60,9 @@ func (service *BlogServiceImpl) GetAllBlogsID() ([]dto.SitemapOutput, error) {
 	// only get the id, and append it to array if of string
 	for _, blog := range blogs {
 		temp := dto.SitemapOutput{
-			ID:        blog.ID,
-			UpdatedAt: blog.UpdatedAt,
+			Slug:           blog.Slug,
+			AuthorUsername: blog.Author.Username,
+			UpdatedAt:      blog.UpdatedAt,
 		}
 
 		result = append(result, temp)
