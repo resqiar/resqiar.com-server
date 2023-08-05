@@ -15,7 +15,8 @@ import (
 
 var blogRepoTest = repositories.BlogRepoMock{}
 var blogServiceTest = BlogServiceImpl{
-	Repository: &blogRepoTest,
+	UtilService: &utilService,
+	Repository:  &blogRepoTest,
 }
 
 func TestGetBlogs(t *testing.T) {
@@ -226,20 +227,21 @@ func TestGetBlogsID(t *testing.T) {
 }
 
 func TestGetBlogDetail(t *testing.T) {
-	t.Run("Should return published blog detail", func(t *testing.T) {
-		blogID := "example-of-id"
+	t.Run("Should return published blog detail using slug", func(t *testing.T) {
+		authorUsername := "user123"
+		slug := "example-of-slug"
 		published := true
 
 		expectedBlog := &entities.SafeBlogAuthor{
 			SafeBlog: entities.SafeBlog{
-				ID:          blogID,
+				Slug:        slug,
 				PublishedAt: time.Now(),
 			},
 		}
 
-		mock := blogRepoTest.Mock.On("GetBlog", blogID, published).Return(expectedBlog, nil)
+		mock := blogRepoTest.Mock.On("GetBlog", "", authorUsername, slug, published).Return(expectedBlog, nil)
 
-		result, err := blogServiceTest.GetBlogDetail(blogID, published)
+		result, err := blogServiceTest.GetBlogDetail("", authorUsername, slug, published)
 
 		assert.Nil(t, err)
 		assert.NotNil(t, result)
@@ -252,7 +254,7 @@ func TestGetBlogDetail(t *testing.T) {
 		})
 	})
 
-	t.Run("Should return unpublished blog detail", func(t *testing.T) {
+	t.Run("Should return unpublished blog detail using ID", func(t *testing.T) {
 		blogID := "example-of-id"
 		published := false
 
@@ -263,9 +265,9 @@ func TestGetBlogDetail(t *testing.T) {
 			},
 		}
 
-		mock := blogRepoTest.Mock.On("GetBlog", blogID, published).Return(expectedBlog, nil)
+		mock := blogRepoTest.Mock.On("GetBlog", blogID, "", "", published).Return(expectedBlog, nil)
 
-		result, err := blogServiceTest.GetBlogDetail(blogID, published)
+		result, err := blogServiceTest.GetBlogDetail(blogID, "", "", published)
 
 		assert.Nil(t, err)
 		assert.NotNil(t, result)
@@ -277,13 +279,33 @@ func TestGetBlogDetail(t *testing.T) {
 		})
 	})
 
-	t.Run("Should error if query failed or return an error", func(t *testing.T) {
-		blogID := "example-of-wrong-id"
+	t.Run("Should error if author username wrong", func(t *testing.T) {
+		authorUsername := "Wrong_Author"
+		slug := "example-of-slug"
 		published := true
 
-		mock := blogRepoTest.Mock.On("GetBlog", blogID, published).Return(nil, errors.New("Record not found"))
+		mock := blogRepoTest.Mock.On("GetBlog", "", authorUsername, slug, published).Return(nil, errors.New("Record not found"))
 
-		result, err := blogServiceTest.GetBlogDetail(blogID, published)
+		result, err := blogServiceTest.GetBlogDetail("", authorUsername, slug, published)
+
+		assert.Nil(t, result)
+		assert.NotNil(t, err)
+		assert.EqualError(t, err, "Record not found")
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
+	})
+
+	t.Run("Should error if slug wrong", func(t *testing.T) {
+		authorUsername := "User123"
+		slug := "example-of-wrong-slug"
+		published := true
+
+		mock := blogRepoTest.Mock.On("GetBlog", "", authorUsername, slug, published).Return(nil, errors.New("Record not found"))
+
+		result, err := blogServiceTest.GetBlogDetail("", authorUsername, slug, published)
 
 		assert.Nil(t, result)
 		assert.NotNil(t, err)
@@ -542,6 +564,11 @@ func TestGetCurrentUserBlogs(t *testing.T) {
 	})
 }
 
+func TestGetCurrentUserSlugs(t *testing.T) {
+	t.Run("Should return array of current user slugs", func(t *testing.T) {
+	})
+}
+
 func TestGetCurrentUserBlog(t *testing.T) {
 	t.Run("Should return a blog own by current user", func(t *testing.T) {
 		userID := "example-of-id"
@@ -586,6 +613,7 @@ func TestGetCurrentUserBlog(t *testing.T) {
 
 func TestChangeBlogPublish(t *testing.T) {
 	t.Run("Should change a blog publication status from FALSE to TRUE", func(t *testing.T) {
+		slug := "example-of-title"
 		userID := "example-of-user-id"
 		payload := inputs.BlogIDInput{
 			ID: "example-of-id",
@@ -593,11 +621,13 @@ func TestChangeBlogPublish(t *testing.T) {
 
 		unpublishedBlog := &entities.Blog{
 			ID:        payload.ID,
+			Title:     "Example of Title",
 			Published: false,
 		}
 
 		firstMock := blogRepoTest.Mock.On("GetByIDAndAuthor", payload.ID, userID).Return(unpublishedBlog, nil)
 		secondMock := blogRepoTest.Mock.On("SaveBlog", unpublishedBlog).Return(nil)
+		thirdMock := blogRepoTest.Mock.On("GetCurrentUserSlugs", slug, userID).Return([]entities.Blog{}, nil)
 
 		err := blogServiceTest.ChangeBlogPublish(&payload, userID, true)
 
@@ -607,10 +637,12 @@ func TestChangeBlogPublish(t *testing.T) {
 			// Cleanup mocking
 			firstMock.Unset()
 			secondMock.Unset()
+			thirdMock.Unset()
 		})
 	})
 
 	t.Run("Should change a blog publication status from TRUE to FALSE", func(t *testing.T) {
+		slug := "example-of-title"
 		userID := "example-of-user-id"
 		payload := inputs.BlogIDInput{
 			ID: "example-of-id",
@@ -618,11 +650,13 @@ func TestChangeBlogPublish(t *testing.T) {
 
 		unpublishedBlog := &entities.Blog{
 			ID:        payload.ID,
+			Title:     "Example of Title",
 			Published: true,
 		}
 
 		firstMock := blogRepoTest.Mock.On("GetByIDAndAuthor", payload.ID, userID).Return(unpublishedBlog, nil)
 		secondMock := blogRepoTest.Mock.On("SaveBlog", unpublishedBlog).Return(nil)
+		thirdMock := blogRepoTest.Mock.On("GetCurrentUserSlugs", slug, userID).Return([]entities.Blog{}, nil)
 
 		err := blogServiceTest.ChangeBlogPublish(&payload, userID, false)
 
@@ -632,10 +666,12 @@ func TestChangeBlogPublish(t *testing.T) {
 			// Cleanup mocking
 			firstMock.Unset()
 			secondMock.Unset()
+			thirdMock.Unset()
 		})
 	})
 
 	t.Run("Should return error if blog not found", func(t *testing.T) {
+		slug := "example-of-title"
 		userID := "example-of-wrong-id"
 		payload := inputs.BlogIDInput{
 			ID: "example-of-id",
@@ -643,11 +679,13 @@ func TestChangeBlogPublish(t *testing.T) {
 
 		unpublishedBlog := &entities.Blog{
 			ID:        payload.ID,
+			Title:     "Example of Title",
 			Published: true,
 		}
 
 		firstMock := blogRepoTest.Mock.On("GetByIDAndAuthor", payload.ID, userID).Return(nil, errors.New("Record not found"))
 		secondMock := blogRepoTest.Mock.On("SaveBlog", unpublishedBlog).Return(nil)
+		thirdMock := blogRepoTest.Mock.On("GetCurrentUserSlugs", slug, userID).Return([]entities.Blog{}, nil)
 
 		err := blogServiceTest.ChangeBlogPublish(&payload, userID, true)
 
@@ -658,10 +696,12 @@ func TestChangeBlogPublish(t *testing.T) {
 			// Cleanup mocking
 			firstMock.Unset()
 			secondMock.Unset()
+			thirdMock.Unset()
 		})
 	})
 
 	t.Run("Should return error if failed to be saved", func(t *testing.T) {
+		slug := "example-of-title"
 		userID := "example-of-id"
 		payload := inputs.BlogIDInput{
 			ID: "example-of-id",
@@ -669,11 +709,13 @@ func TestChangeBlogPublish(t *testing.T) {
 
 		unpublishedBlog := &entities.Blog{
 			ID:        payload.ID,
+			Title:     "Example of Title",
 			Published: true,
 		}
 
 		firstMock := blogRepoTest.Mock.On("GetByIDAndAuthor", payload.ID, userID).Return(unpublishedBlog, nil)
 		secondMock := blogRepoTest.Mock.On("SaveBlog", unpublishedBlog).Return(errors.New("Error saving blog"))
+		thirdMock := blogRepoTest.Mock.On("GetCurrentUserSlugs", slug, userID).Return([]entities.Blog{}, nil)
 
 		err := blogServiceTest.ChangeBlogPublish(&payload, userID, true)
 
@@ -684,6 +726,7 @@ func TestChangeBlogPublish(t *testing.T) {
 			// Cleanup mocking
 			firstMock.Unset()
 			secondMock.Unset()
+			thirdMock.Unset()
 		})
 	})
 }
