@@ -12,8 +12,8 @@ import (
 
 var userRepo = &repositories.UserRepoMock{}
 var userService = UserServiceImpl{
-	Repository:  userRepo,
 	UtilService: &utilService,
+	Repository:  userRepo,
 }
 
 func TestRegisterUser(t *testing.T) {

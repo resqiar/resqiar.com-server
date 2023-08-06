@@ -14,11 +14,12 @@ import (
 
 type BlogRepository interface {
 	GetBlogs(onlyPublished bool, desc bool) ([]entities.SafeBlogAuthor, error)
-	GetBlog(blogID string, published bool) (*entities.SafeBlogAuthor, error)
+	GetBlog(useID string, blogAuthor string, blogID string, published bool) (*entities.SafeBlogAuthor, error)
 	CreateBlog(input *entities.Blog) (*entities.Blog, error)
 	UpdateBlog(blogID string, safe *inputs.SafeUpdateBlogInput) error
 	GetByIDAndAuthor(blogID string, userID string) (*entities.Blog, error)
 	GetCurrentUserBlogs(userID string, desc bool) ([]entities.Blog, error)
+	GetCurrentUserSlugs(slug string, userID string) ([]entities.Blog, error)
 	GetCurrentUserBlog(blogID string, userID string) (*entities.Blog, error)
 	SaveBlog(blog *entities.Blog) error
 }
@@ -39,7 +40,7 @@ func (repo *BlogRepoImpl) GetBlogs(onlyPublished bool, orderDesc bool) ([]entiti
 	query := repo.db.Model(&entities.Blog{})
 
 	// Define SELECT and JOIN for database query operations
-	BLOG_SELECT_SQL := "blogs.id, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.cover_url, blogs.author_id, "
+	BLOG_SELECT_SQL := "blogs.id, blogs.slug, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.cover_url, blogs.author_id, "
 	AUTHOR_SELECT_SQL := "users.id AS author_id, users.username AS author_username, users.created_at AS author_created_at, users.bio AS author_bio, users.picture_url AS author_picture_url, users.is_tester AS author_is_tester"
 	JOIN_SQL := "JOIN users ON blogs.author_id = users.id"
 
@@ -102,24 +103,34 @@ func (repo *BlogRepoImpl) GetBlogs(onlyPublished bool, orderDesc bool) ([]entiti
 	return blogs, nil
 }
 
-func (repo *BlogRepoImpl) GetBlog(blogID string, published bool) (*entities.SafeBlogAuthor, error) {
+func (repo *BlogRepoImpl) GetBlog(useID string, blogAuthor string, blogSlug string, published bool) (*entities.SafeBlogAuthor, error) {
 	var blog entities.SafeBlogAuthor
+	var condition string
+	var args []interface{}
 
 	// Define SELECT and JOIN for database query operations
-	BLOG_SELECT_SQL := "blogs.id, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.content, blogs.cover_url, blogs.author_id, "
+	BLOG_SELECT_SQL := "blogs.id, blogs.slug, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.content, blogs.cover_url, blogs.author_id, "
 	AUTHOR_SELECT_SQL := "users.id AS author_id, users.username AS author_username, users.created_at AS author_created_at, users.bio AS author_bio, users.picture_url AS author_picture_url, users.is_tester AS author_is_tester"
 	JOIN_SQL := "JOIN users ON blogs.author_id = users.id"
 
-	// Execute the query and retrieve the rows
 	result := repo.db.Model(&entities.Blog{}).
 		Select(BLOG_SELECT_SQL + AUTHOR_SELECT_SQL).
 		Joins(JOIN_SQL)
 
-	if published {
-		result.Where("blogs.id = ? AND published = ?", blogID, true)
+	if useID != "" {
+		condition = "blogs.ID = ?" // use ID instead of slug
+		args = []interface{}{useID}
 	} else {
-		result.Where("blogs.id = ?", blogID)
+		condition = "blogs.slug = ? AND users.username = ?" // use slug and username
+		args = []interface{}{blogSlug, blogAuthor}
 	}
+
+	if published {
+		condition += " AND published = ?"
+		args = append(args, true)
+	}
+
+	result.Where(condition, args...)
 
 	// Check for any errors during query execution
 	if result.Error != nil {
@@ -214,6 +225,16 @@ func (repo *BlogRepoImpl) GetCurrentUserBlogs(userID string, desc bool) ([]entit
 		Order(fmt.Sprintf("updated_at %s", queryOrder)).
 		Find(&blogs, "author_id = ?", userID).
 		Error; err != nil {
+		return nil, err
+	}
+
+	return blogs, nil
+}
+
+func (repo *BlogRepoImpl) GetCurrentUserSlugs(slug string, userID string) ([]entities.Blog, error) {
+	var blogs []entities.Blog
+
+	if err := repo.db.Find(&blogs, "slug = ? AND author_id = ?", slug, userID).Error; err != nil {
 		return nil, err
 	}
 
