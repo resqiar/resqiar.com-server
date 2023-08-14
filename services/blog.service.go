@@ -15,6 +15,7 @@ type BlogService interface {
 	GetAllBlogs(onlyPublished bool, order constants.Order) ([]entities.SafeBlogAuthor, error)
 	GetAllSlugs() ([]dto.SitemapOutput, error)
 	GetBlogDetail(useID string, blogAuthor string, blogSlug string, published bool) (*entities.SafeBlogAuthor, error)
+	GetBlogContent(useID string, blogAuthor string, blogSlug string, published bool) (string, error)
 	CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog, error)
 	EditBlog(payload *inputs.UpdateBlogInput, userID string) error
 	GetCurrentUserBlogs(userID string, order constants.Order) ([]entities.Blog, error)
@@ -82,6 +83,16 @@ func (service *BlogServiceImpl) GetBlogDetail(useID string, blogAuthor string, b
 	}
 
 	return blog, nil
+}
+
+func (service *BlogServiceImpl) GetBlogContent(useID string, blogAuthor string, blogSlug string, published bool) (string, error) {
+	blog, err := service.GetBlogDetail(useID, blogAuthor, blogSlug, published)
+	if err != nil {
+		return "", err
+	}
+
+	// Return parsed HTML from markdown content
+	return service.UtilService.ParseMD(blog.Content), nil
 }
 
 func (service *BlogServiceImpl) CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog, error) {

@@ -1,11 +1,22 @@
 package services
 
 import (
+	"bytes"
+	"log"
 	"regexp"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
 	gonanoid "github.com/matoous/go-nanoid/v2"
+
+	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
+	"github.com/microcosm-cc/bluemonday"
+	"github.com/yuin/goldmark"
+	highlighting "github.com/yuin/goldmark-highlighting/v2"
+	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
+	html "github.com/yuin/goldmark/renderer/html"
+	"go.abhg.dev/goldmark/anchor"
 )
 
 type UtilService interface {
@@ -13,6 +24,10 @@ type UtilService interface {
 	FormatToURL(value string) string
 	GenerateRandomID(length int) string
 	ValidateInput(payload any) string
+
+	// ParseMD converts Markdown content into safe & sanitized HTML.
+	// If error happens, it will merely returns empty string.
+	ParseMD(s string) string
 }
 
 type UtilServiceImpl struct{}
@@ -99,4 +114,42 @@ func (service *UtilServiceImpl) ValidateInput(payload any) string {
 	}
 
 	return errMessage
+}
+
+var (
+	engine = goldmark.New(
+		goldmark.WithExtensions(
+			extension.GFM,
+			highlighting.NewHighlighting(
+				highlighting.WithStyle("paraiso-dark"),
+				highlighting.WithFormatOptions(
+					chromahtml.WithLineNumbers(true),
+				),
+			),
+			&anchor.Extender{
+				Texter:   anchor.Text("#"),
+				Position: anchor.Before,
+			},
+		),
+		goldmark.WithParserOptions(
+			parser.WithAutoHeadingID(),
+		),
+		goldmark.WithRendererOptions(
+			html.WithHardWraps(),
+			html.WithUnsafe(),
+		),
+	)
+	sanitizePolicy = bluemonday.UGCPolicy().AllowAttrs("style").OnElements("p", "span", "pre")
+)
+
+func (service *UtilServiceImpl) ParseMD(s string) string {
+	var buf bytes.Buffer
+
+	if err := engine.Convert([]byte(s), &buf); err != nil {
+		log.Println("Error parsing MD:", err)
+		return ""
+	}
+
+	sanitized := string(sanitizePolicy.SanitizeBytes(buf.Bytes()))
+	return sanitized
 }
