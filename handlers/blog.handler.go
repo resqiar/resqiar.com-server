@@ -12,7 +12,6 @@ type BlogHandler interface {
 	SendBlogList(c *fiber.Ctx) error
 	SendPublishedBlog(c *fiber.Ctx) error
 	SendPublishedBlogs(c *fiber.Ctx) error
-	SendPublishedContent(c *fiber.Ctx) error
 	SendPublishedSlugs(c *fiber.Ctx) error
 	SendBlogCreate(c *fiber.Ctx) error
 	SendCurrentUserBlogs(c *fiber.Ctx) error
@@ -58,21 +57,6 @@ func (handler *BlogHandlerImpl) SendPublishedBlog(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
 		"result": result,
 	})
-}
-
-func (handler *BlogHandlerImpl) SendPublishedContent(c *fiber.Ctx) error {
-	blogAuthor := c.Params("author")
-	blogSlug := c.Params("slug")
-
-	result, err := handler.BlogService.GetBlogContent("", blogAuthor, blogSlug, true)
-	if err != nil {
-		return c.SendStatus(fiber.StatusNotFound)
-	}
-
-	// Set response header content type to HTML
-	c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
-
-	return c.Status(fiber.StatusOK).SendString(result)
 }
 
 func (handler *BlogHandlerImpl) SendPublishedBlogs(c *fiber.Ctx) error {
