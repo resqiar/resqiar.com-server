@@ -242,12 +242,12 @@ func TestParseMD(t *testing.T) {
 		expected string
 	}{
 		{"hello paragraph", "<p>hello paragraph</p>\n"},
-		{"# Hello World", "<h1 id=\"hello-world\"><a href=\"#hello-world\" rel=\"nofollow\">#</a> Hello World</h1>\n"},
-		{"## Hello World", "<h2 id=\"hello-world\"><a href=\"#hello-world\" rel=\"nofollow\">#</a> Hello World</h2>\n"},
-		{"### Hello World", "<h3 id=\"hello-world\"><a href=\"#hello-world\" rel=\"nofollow\">#</a> Hello World</h3>\n"},
-		{"#### Hello World", "<h4 id=\"hello-world\"><a href=\"#hello-world\" rel=\"nofollow\">#</a> Hello World</h4>\n"},
-		{"##### Hello World", "<h5 id=\"hello-world\"><a href=\"#hello-world\" rel=\"nofollow\">#</a> Hello World</h5>\n"},
-		{"###### Hello World", "<h6 id=\"hello-world\"><a href=\"#hello-world\" rel=\"nofollow\">#</a> Hello World</h6>\n"},
+		{"# Hello World", "<h1 id=\"hello-world\">Hello World <a href=\"#hello-world\" rel=\"nofollow\">#</a></h1>\n"},
+		{"## Hello World", "<h2 id=\"hello-world\">Hello World <a href=\"#hello-world\" rel=\"nofollow\">#</a></h2>\n"},
+		{"### Hello World", "<h3 id=\"hello-world\">Hello World <a href=\"#hello-world\" rel=\"nofollow\">#</a></h3>\n"},
+		{"#### Hello World", "<h4 id=\"hello-world\">Hello World <a href=\"#hello-world\" rel=\"nofollow\">#</a></h4>\n"},
+		{"##### Hello World", "<h5 id=\"hello-world\">Hello World <a href=\"#hello-world\" rel=\"nofollow\">#</a></h5>\n"},
+		{"###### Hello World", "<h6 id=\"hello-world\">Hello World <a href=\"#hello-world\" rel=\"nofollow\">#</a></h6>\n"},
 		{"* Item 1\n* Item 2", "<ul>\n<li>Item 1</li>\n<li>Item 2</li>\n</ul>\n"},
 		{"> Blockquote", "<blockquote>\n<p>Blockquote</p>\n</blockquote>\n"},
 		{"[Link](https://www.example.com)", "<p><a href=\"https://www.example.com\" rel=\"nofollow\">Link</a></p>\n"},
