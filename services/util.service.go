@@ -128,7 +128,7 @@ var (
 			),
 			&anchor.Extender{
 				Texter:   anchor.Text("#"),
-				Position: anchor.Before,
+				Position: anchor.After,
 			},
 		),
 		goldmark.WithParserOptions(
