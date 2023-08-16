@@ -9,12 +9,13 @@ import (
 	"resqiar.com-server/entities"
 	"resqiar.com-server/inputs"
 	"resqiar.com-server/repositories"
+	"resqiar.com-server/types"
 )
 
 type BlogService interface {
 	GetAllBlogs(onlyPublished bool, order constants.Order) ([]entities.SafeBlogAuthor, error)
 	GetAllSlugs() ([]dto.SitemapOutput, error)
-	GetBlogDetail(useID string, blogAuthor string, blogSlug string, published bool) (*entities.SafeBlogAuthor, error)
+	GetBlogDetail(opt *types.BlogDetailOpts) (*entities.SafeBlogAuthor, error)
 	CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog, error)
 	EditBlog(payload *inputs.UpdateBlogInput, userID string) error
 	GetCurrentUserBlogs(userID string, order constants.Order) ([]entities.Blog, error)
@@ -75,14 +76,16 @@ func (service *BlogServiceImpl) GetAllSlugs() ([]dto.SitemapOutput, error) {
 // based on the provided blogID.
 // It returns the retrieved blog and any error encountered during the process.
 // If no blog is found or an error occurs, it returns an appropriate error.
-func (service *BlogServiceImpl) GetBlogDetail(useID string, blogAuthor string, blogSlug string, published bool) (*entities.SafeBlogAuthor, error) {
-	blog, err := service.Repository.GetBlog(useID, blogAuthor, blogSlug, published)
+func (service *BlogServiceImpl) GetBlogDetail(opt *types.BlogDetailOpts) (*entities.SafeBlogAuthor, error) {
+	blog, err := service.Repository.GetBlog(opt.UseID, opt.BlogAuthor, opt.BlogAuthor, opt.Published)
 	if err != nil {
 		return nil, err
 	}
 
-	// replace the content of the blog with the parsed HTML instead of pure markdown
-	blog.Content = service.UtilService.ParseMD(blog.Content)
+	if opt.ReturnHTML {
+		// replace the content of the blog with the parsed HTML instead of pure markdown
+		blog.Content = service.UtilService.ParseMD(blog.Content)
+	}
 
 	return blog, nil
 }
