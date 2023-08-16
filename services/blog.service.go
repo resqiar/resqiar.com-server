@@ -77,7 +77,7 @@ func (service *BlogServiceImpl) GetAllSlugs() ([]dto.SitemapOutput, error) {
 // It returns the retrieved blog and any error encountered during the process.
 // If no blog is found or an error occurs, it returns an appropriate error.
 func (service *BlogServiceImpl) GetBlogDetail(opt *types.BlogDetailOpts) (*entities.SafeBlogAuthor, error) {
-	blog, err := service.Repository.GetBlog(opt.UseID, opt.BlogAuthor, opt.BlogAuthor, opt.Published)
+	blog, err := service.Repository.GetBlog(opt.UseID, opt.BlogAuthor, opt.BlogSlug, opt.Published)
 	if err != nil {
 		return nil, err
 	}

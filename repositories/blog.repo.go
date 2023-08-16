@@ -14,7 +14,7 @@ import (
 
 type BlogRepository interface {
 	GetBlogs(onlyPublished bool, desc bool) ([]entities.SafeBlogAuthor, error)
-	GetBlog(useID string, blogAuthor string, blogID string, published bool) (*entities.SafeBlogAuthor, error)
+	GetBlog(useID string, blogAuthor string, blogSlug string, published bool) (*entities.SafeBlogAuthor, error)
 	CreateBlog(input *entities.Blog) (*entities.Blog, error)
 	UpdateBlog(blogID string, safe *inputs.SafeUpdateBlogInput) error
 	GetByIDAndAuthor(blogID string, userID string) (*entities.Blog, error)
