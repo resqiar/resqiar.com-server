@@ -4,6 +4,7 @@ import (
 	"resqiar.com-server/constants"
 	"resqiar.com-server/inputs"
 	"resqiar.com-server/services"
+	"resqiar.com-server/types"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -49,7 +50,13 @@ func (handler *BlogHandlerImpl) SendPublishedBlog(c *fiber.Ctx) error {
 	blogAuthor := c.Params("author")
 	blogSlug := c.Params("slug")
 
-	result, err := handler.BlogService.GetBlogDetail("", blogAuthor, blogSlug, true)
+	result, err := handler.BlogService.GetBlogDetail(&types.BlogDetailOpts{
+		UseID:      "",
+		BlogAuthor: blogAuthor,
+		BlogSlug:   blogSlug,
+		Published:  true,
+		ReturnHTML: true,
+	})
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
 	}
@@ -249,7 +256,13 @@ func (handler *BlogHandlerImpl) SendMyBlog(c *fiber.Ctx) error {
 		})
 	}
 
-	blog, err := handler.BlogService.GetBlogDetail(payload.ID, "", "", false)
+	blog, err := handler.BlogService.GetBlogDetail(&types.BlogDetailOpts{
+		UseID:      payload.ID,
+		BlogAuthor: "",
+		BlogSlug:   "",
+		Published:  false,
+		ReturnHTML: false,
+	})
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
 	}
