@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/alecthomas/chroma/v2 v2.8.0
-	github.com/go-playground/validator/v10 v10.14.0
+	github.com/go-playground/validator/v10 v10.15.1
 	github.com/gofiber/fiber/v2 v2.48.0
 	github.com/gofiber/storage/redis/v2 v2.0.1
 	github.com/imagekit-developer/imagekit-go v0.0.0-20221027035115-2e643255882a
