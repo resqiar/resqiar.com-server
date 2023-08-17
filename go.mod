@@ -8,7 +8,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.48.0
 	github.com/gofiber/storage/redis/v2 v2.0.1
 	github.com/imagekit-developer/imagekit-go v0.0.0-20221027035115-2e643255882a
-	github.com/jarcoal/httpmock v1.3.0
+	github.com/jarcoal/httpmock v1.3.1
 	github.com/joho/godotenv v1.5.1
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/microcosm-cc/bluemonday v1.0.25
