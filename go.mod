@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/chroma/v2 v2.8.0
 	github.com/go-playground/validator/v10 v10.14.0
 	github.com/gofiber/fiber/v2 v2.48.0
-	github.com/gofiber/storage/redis/v2 v2.0.1
+	github.com/gofiber/storage/redis/v2 v2.0.3
 	github.com/imagekit-developer/imagekit-go v0.0.0-20221027035115-2e643255882a
 	github.com/jarcoal/httpmock v1.3.0
 	github.com/joho/godotenv v1.5.1
@@ -49,7 +49,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/redis/go-redis/v9 v9.0.4 // indirect
+	github.com/redis/go-redis/v9 v9.0.5 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/tinylib/msgp v1.1.8 // indirect
