@@ -11,6 +11,7 @@ import (
 	"resqiar.com-server/entities"
 	"resqiar.com-server/inputs"
 	"resqiar.com-server/repositories"
+	"resqiar.com-server/types"
 )
 
 var blogRepoTest = repositories.BlogRepoMock{}
@@ -248,7 +249,13 @@ func TestGetBlogDetail(t *testing.T) {
 
 		mock := blogRepoTest.Mock.On("GetBlog", "", authorUsername, slug, published).Return(expectedBlog, nil)
 
-		result, err := blogServiceTest.GetBlogDetail("", authorUsername, slug, published)
+		result, err := blogServiceTest.GetBlogDetail(&types.BlogDetailOpts{
+			UseID:      "",
+			BlogAuthor: authorUsername,
+			BlogSlug:   slug,
+			Published:  published,
+			ReturnHTML: true,
+		})
 
 		assert.Nil(t, err)
 		assert.NotNil(t, result)
@@ -274,7 +281,13 @@ func TestGetBlogDetail(t *testing.T) {
 
 		mock := blogRepoTest.Mock.On("GetBlog", blogID, "", "", published).Return(expectedBlog, nil)
 
-		result, err := blogServiceTest.GetBlogDetail(blogID, "", "", published)
+		result, err := blogServiceTest.GetBlogDetail(&types.BlogDetailOpts{
+			UseID:      blogID,
+			BlogAuthor: "",
+			BlogSlug:   "",
+			Published:  published,
+			ReturnHTML: false,
+		})
 
 		assert.Nil(t, err)
 		assert.NotNil(t, result)
@@ -293,7 +306,13 @@ func TestGetBlogDetail(t *testing.T) {
 
 		mock := blogRepoTest.Mock.On("GetBlog", "", authorUsername, slug, published).Return(nil, errors.New("Record not found"))
 
-		result, err := blogServiceTest.GetBlogDetail("", authorUsername, slug, published)
+		result, err := blogServiceTest.GetBlogDetail(&types.BlogDetailOpts{
+			UseID:      "",
+			BlogAuthor: authorUsername,
+			BlogSlug:   slug,
+			Published:  published,
+			ReturnHTML: false,
+		})
 
 		assert.Nil(t, result)
 		assert.NotNil(t, err)
@@ -312,7 +331,13 @@ func TestGetBlogDetail(t *testing.T) {
 
 		mock := blogRepoTest.Mock.On("GetBlog", "", authorUsername, slug, published).Return(nil, errors.New("Record not found"))
 
-		result, err := blogServiceTest.GetBlogDetail("", authorUsername, slug, published)
+		result, err := blogServiceTest.GetBlogDetail(&types.BlogDetailOpts{
+			UseID:      "",
+			BlogAuthor: authorUsername,
+			BlogSlug:   slug,
+			Published:  published,
+			ReturnHTML: false,
+		})
 
 		assert.Nil(t, result)
 		assert.NotNil(t, err)
