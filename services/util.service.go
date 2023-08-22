@@ -19,6 +19,35 @@ import (
 	"go.abhg.dev/goldmark/anchor"
 )
 
+var (
+	validate                  = validator.New()
+	removeNonAlphaNumRegex    = regexp.MustCompile("[^ a-zA-Z0-9]")
+	removeMultipleSpacesRegex = regexp.MustCompile(`\s+`)
+	engine                    = goldmark.New(
+		goldmark.WithExtensions(
+			extension.GFM,
+			highlighting.NewHighlighting(
+				highlighting.WithStyle("paraiso-dark"),
+				highlighting.WithFormatOptions(
+					chromahtml.WithLineNumbers(true),
+				),
+			),
+			&anchor.Extender{
+				Texter:   anchor.Text("#"),
+				Position: anchor.After,
+			},
+		),
+		goldmark.WithParserOptions(
+			parser.WithAutoHeadingID(),
+		),
+		goldmark.WithRendererOptions(
+			html.WithHardWraps(),
+			html.WithUnsafe(),
+		),
+	)
+	sanitizePolicy = bluemonday.UGCPolicy().AllowAttrs("style").OnElements("p", "span", "pre")
+)
+
 type UtilService interface {
 	FormatUsername(name string) string
 	FormatToURL(value string) string
@@ -32,10 +61,11 @@ type UtilService interface {
 
 type UtilServiceImpl struct{}
 
-var (
-	removeNonAlphaNumRegex    = regexp.MustCompile("[^ a-zA-Z0-9]")
-	removeMultipleSpacesRegex = regexp.MustCompile(`\s+`)
-)
+func InitUtilService() UtilService {
+	initCustomValidation()
+
+	return &UtilServiceImpl{}
+}
 
 func (service *UtilServiceImpl) FormatUsername(name string) string {
 	// remove any non-alphanumeric characters from the string
@@ -81,9 +111,6 @@ func (service *UtilServiceImpl) ValidateInput(payload any) string {
 		return "Invalid Payload"
 	}
 
-	// instantiate new instance
-	validate := validator.New()
-
 	// save error messages here
 	var errMessage string
 
@@ -103,7 +130,7 @@ func (service *UtilServiceImpl) ValidateInput(payload any) string {
 				break
 			}
 
-			if err.Tag() == "url" {
+			if err.Tag() == "url" || err.Tag() == "media_url" {
 				errMessage = err.StructField() + " field is not a valid URL"
 				break
 			}
@@ -116,31 +143,24 @@ func (service *UtilServiceImpl) ValidateInput(payload any) string {
 	return errMessage
 }
 
-var (
-	engine = goldmark.New(
-		goldmark.WithExtensions(
-			extension.GFM,
-			highlighting.NewHighlighting(
-				highlighting.WithStyle("paraiso-dark"),
-				highlighting.WithFormatOptions(
-					chromahtml.WithLineNumbers(true),
-				),
-			),
-			&anchor.Extender{
-				Texter:   anchor.Text("#"),
-				Position: anchor.After,
-			},
-		),
-		goldmark.WithParserOptions(
-			parser.WithAutoHeadingID(),
-		),
-		goldmark.WithRendererOptions(
-			html.WithHardWraps(),
-			html.WithUnsafe(),
-		),
-	)
-	sanitizePolicy = bluemonday.UGCPolicy().AllowAttrs("style").OnElements("p", "span", "pre")
-)
+func initCustomValidation() {
+	// register custom validation for validator - only do this once
+	validate.RegisterValidation("media_url", func(fl validator.FieldLevel) bool {
+		value := fl.Field().Interface().(string)
+
+		// only allow "" and " " - else must be validated as a URL
+		if value == "" || value == " " {
+			return true
+		}
+
+		// if the value is not "" or " " - we have to validate it as a URL
+		if err := validate.Var(value, "url"); err != nil {
+			return false
+		}
+
+		return true
+	})
+}
 
 func (service *UtilServiceImpl) ParseMD(s string) string {
 	var buf bytes.Buffer
