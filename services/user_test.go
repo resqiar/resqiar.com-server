@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"resqiar.com-server/constants"
 	"resqiar.com-server/entities"
+	"resqiar.com-server/inputs"
 	"resqiar.com-server/repositories"
 )
 
@@ -140,5 +141,86 @@ func TestCheckUsernameExist(t *testing.T) {
 		isExist := userService.CheckUsernameExist(ID)
 
 		assert.Equal(t, isExist, false)
+	})
+}
+
+func TestUpdateUser(t *testing.T) {
+	t.Run("Should successfully update the user", func(t *testing.T) {
+		userID := "example-of-valid-id"
+
+		payload := &inputs.UpdateUserInput{
+			Username: userID,
+		}
+
+		expectedUser := &entities.SafeUser{
+			Username: payload.Username,
+		}
+
+		firstMock := userRepo.Mock.On("FindByID", userID).Return(&expectedUser, nil)
+		secondMock := userRepo.Mock.On("UpdateUser", userID, payload).Return(nil)
+
+		err := userService.UpdateUser(payload, userID)
+
+		assert.Nil(t, err)
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			firstMock.Unset()
+			secondMock.Unset()
+		})
+	})
+
+	t.Run("Should return error if username not found", func(t *testing.T) {
+		userID := "example-of-invalid-id"
+
+		payload := &inputs.UpdateUserInput{
+			Username: userID,
+		}
+
+		expectedUser := &entities.SafeUser{
+			Username: payload.Username,
+		}
+
+		firstMock := userRepo.Mock.On("FindByID", userID).Return(&expectedUser, nil)
+		secondMock := userRepo.Mock.On("UpdateUser", userID, payload).Return(nil)
+
+		err := userService.UpdateUser(payload, userID)
+
+		assert.NotNil(t, err)
+		assert.Error(t, err)
+		assert.EqualError(t, err, "Record not found")
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			firstMock.Unset()
+			secondMock.Unset()
+		})
+	})
+
+	t.Run("Should return error if update goes wrong", func(t *testing.T) {
+		userID := "example-of-valid-id"
+
+		payload := &inputs.UpdateUserInput{
+			Bio: "new-bio",
+		}
+
+		expectedUser := &entities.SafeUser{
+			Bio: payload.Bio,
+		}
+
+		firstMock := userRepo.Mock.On("FindByID", userID).Return(&expectedUser, nil)
+		secondMock := userRepo.Mock.On("UpdateUser", userID, payload).Return("Something went wrong")
+
+		err := userService.UpdateUser(payload, userID)
+
+		assert.NotNil(t, err)
+		assert.Error(t, err)
+		assert.EqualError(t, err, "Record not found")
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			firstMock.Unset()
+			secondMock.Unset()
+		})
 	})
 }
