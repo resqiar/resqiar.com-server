@@ -12,5 +12,12 @@ type SafeUser struct {
 	Bio        string
 	PictureURL string
 
+	WebsiteURL   string
+	GitHubURL    string
+	LinkedInURL  string
+	InstagramURL string
+	TwitterURL   string
+	YoutubeURL   string
+
 	IsTester bool
 }

@@ -20,7 +20,15 @@ type User struct {
 	Bio        string `gorm:"type:text; nullable"`
 	PictureURL string `gorm:"type:text; nullable"`
 
-	IsAdmin bool `gorm:"type:bool; default:false"`
+	// Social media fields
+	WebsiteURL   string `gorm:"type:text; nullable"`
+	GitHubURL    string `gorm:"type:text; nullable"`
+	LinkedInURL  string `gorm:"type:text; nullable"`
+	InstagramURL string `gorm:"type:text; nullable"`
+	TwitterURL   string `gorm:"type:text; nullable"`
+	YoutubeURL   string `gorm:"type:text; nullable"`
+
+	IsAdmin  bool `gorm:"type:bool; default:false"`
 	IsTester bool `gorm:"type:bool; default:false"`
 
 	Blogs []Blog `gorm:"foreignKey:AuthorID"` // has many relationship with blog
