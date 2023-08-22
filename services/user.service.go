@@ -2,8 +2,10 @@ package services
 
 import (
 	"fmt"
+
 	"resqiar.com-server/constants"
 	"resqiar.com-server/entities"
+	"resqiar.com-server/inputs"
 	"resqiar.com-server/repositories"
 )
 
@@ -12,6 +14,7 @@ type UserService interface {
 	FindUserByEmail(email string) (*entities.User, error)
 	FindUserByID(userID string) (*entities.SafeUser, error)
 	CheckUsernameExist(username string) bool
+	UpdateUser(payload *inputs.UpdateUserInput, userID string) error
 }
 
 type UserServiceImpl struct {
@@ -67,4 +70,17 @@ func (service *UserServiceImpl) CheckUsernameExist(username string) bool {
 	}
 
 	return false
+}
+
+func (service *UserServiceImpl) UpdateUser(payload *inputs.UpdateUserInput, userID string) error {
+	user, err := service.Repository.FindByID(userID)
+	if err != nil {
+		return err
+	}
+
+	if err := service.Repository.UpdateUser(user.ID, payload); err != nil {
+		return err
+	}
+
+	return nil
 }

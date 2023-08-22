@@ -13,8 +13,8 @@ type SafeUser struct {
 	PictureURL string
 
 	WebsiteURL   string
-	GitHubURL    string
-	LinkedInURL  string
+	GithubURL    string
+	LinkedinURL  string
 	InstagramURL string
 	TwitterURL   string
 	YoutubeURL   string

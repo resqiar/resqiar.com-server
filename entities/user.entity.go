@@ -22,8 +22,8 @@ type User struct {
 
 	// Social media fields
 	WebsiteURL   string `gorm:"type:text; nullable"`
-	GitHubURL    string `gorm:"type:text; nullable"`
-	LinkedInURL  string `gorm:"type:text; nullable"`
+	GithubURL    string `gorm:"type:text; nullable"`
+	LinkedinURL  string `gorm:"type:text; nullable"`
 	InstagramURL string `gorm:"type:text; nullable"`
 	TwitterURL   string `gorm:"type:text; nullable"`
 	YoutubeURL   string `gorm:"type:text; nullable"`

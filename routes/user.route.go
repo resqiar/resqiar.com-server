@@ -8,7 +8,9 @@ import (
 )
 
 func InitUserRoute(server *fiber.App, handler handlers.UserHandler) {
-	user := server.Group("user")
+	user := server.Group("user", middlewares.ProtectedRoute)
 
-	user.Get("/profile", middlewares.ProtectedRoute, handler.SendUserProfile)
+	user.Get("/profile", handler.SendUserProfile)
+
+	user.Post("/profile/update", handler.SendUserUpdateProfile)
 }
