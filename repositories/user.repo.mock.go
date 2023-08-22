@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 	"resqiar.com-server/entities"
+	"resqiar.com-server/inputs"
 )
 
 type UserRepoMock struct {
@@ -51,4 +52,30 @@ func (repo *UserRepoMock) FindByID(ID string) (*entities.SafeUser, error) {
 	}
 
 	return nil, errors.New("Record not found")
+}
+
+func (repo *UserRepoMock) FindByUsername(username string) (*entities.SafeUser, error) {
+	args := repo.Mock.Called(username)
+
+	existUsername := "example-of-valid-username"
+
+	if args.Get(0) == existUsername {
+		user := entities.SafeUser{
+			Username: existUsername,
+		}
+
+		return &user, nil
+	}
+
+	return nil, errors.New("Record not found")
+}
+
+func (repo *UserRepoMock) UpdateUser(ID string, payload *inputs.UpdateUserInput) error {
+	args := repo.Mock.Called(ID, payload)
+
+	if args.Get(0) == nil {
+		return nil
+	}
+
+	return args.Error(0)
 }

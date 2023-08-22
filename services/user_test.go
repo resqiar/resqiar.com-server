@@ -120,3 +120,25 @@ func TestFindUserByID(t *testing.T) {
 		assert.EqualError(t, error, "Record not found")
 	})
 }
+
+func TestCheckUsernameExist(t *testing.T) {
+	t.Run("Should return true if the same username exist", func(t *testing.T) {
+		ID := "example-of-valid-username"
+
+		userRepo.Mock.On("FindByUsername", ID).Return(ID)
+
+		isExist := userService.CheckUsernameExist(ID)
+
+		assert.Equal(t, isExist, true) // Should be equal
+	})
+
+	t.Run("Should return false if the same username is not found", func(t *testing.T) {
+		ID := "example-of-invalid-id"
+
+		userRepo.Mock.On("FindByUsername", ID).Return(ID)
+
+		isExist := userService.CheckUsernameExist(ID)
+
+		assert.Equal(t, isExist, false)
+	})
+}
