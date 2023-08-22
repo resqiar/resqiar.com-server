@@ -21,6 +21,7 @@ type UserRepository interface {
 	CreateUser(*entities.User) (*entities.User, error)
 	FindByEmail(email string) (*entities.User, error)
 	FindByID(ID string) (*entities.SafeUser, error)
+	FindByUsername(username string) (*entities.SafeUser, error)
 }
 
 func (repo *UserRepoImpl) CreateUser(user *entities.User) (*entities.User, error) {
@@ -47,6 +48,17 @@ func (repo *UserRepoImpl) FindByID(ID string) (*entities.SafeUser, error) {
 	var user entities.SafeUser
 
 	result := repo.db.Model(&entities.User{}).First(&user, "id = ?", ID)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &user, nil
+}
+
+func (repo *UserRepoImpl) FindByUsername(username string) (*entities.SafeUser, error) {
+	var user entities.SafeUser
+
+	result := repo.db.Model(&entities.User{}).First(&user, "username = ?", username)
 	if result.Error != nil {
 		return nil, result.Error
 	}

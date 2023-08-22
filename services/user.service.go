@@ -11,6 +11,7 @@ type UserService interface {
 	RegisterUser(profile *entities.GooglePayload) (*entities.User, error)
 	FindUserByEmail(email string) (*entities.User, error)
 	FindUserByID(userID string) (*entities.SafeUser, error)
+	CheckUsernameExist(username string) bool
 }
 
 type UserServiceImpl struct {
@@ -57,4 +58,13 @@ func (service *UserServiceImpl) FindUserByID(userID string) (*entities.SafeUser,
 	}
 
 	return safeUser, nil
+}
+
+func (service *UserServiceImpl) CheckUsernameExist(username string) bool {
+	exist, _ := service.Repository.FindByUsername(username)
+	if exist != nil {
+		return true
+	}
+
+	return false
 }
