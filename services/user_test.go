@@ -122,25 +122,71 @@ func TestFindUserByID(t *testing.T) {
 	})
 }
 
+func TestFindUserByUsername(t *testing.T) {
+	t.Run("Should return a user with the same username", func(t *testing.T) {
+		username := "example-of-valid-username"
+
+		mock := userRepo.Mock.On("FindByUsername", username).Return(username)
+
+		result, error := userService.FindUserByUsername(username)
+
+		assert.Nil(t, error)
+		assert.NotNil(t, result)
+		assert.Equal(t, username, result.Username) // Should be equal
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
+	})
+
+	t.Run("Should return error if the record is not found", func(t *testing.T) {
+		username := "example-of-invalid-username"
+
+		mock := userRepo.Mock.On("FindByUsername", username).Return(username)
+
+		result, error := userService.FindUserByUsername(username)
+
+		assert.Nil(t, result)
+		assert.NotNil(t, error)
+		assert.EqualError(t, error, "Record not found")
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
+	})
+}
+
 func TestCheckUsernameExist(t *testing.T) {
 	t.Run("Should return true if the same username exist", func(t *testing.T) {
 		ID := "example-of-valid-username"
 
-		userRepo.Mock.On("FindByUsername", ID).Return(ID)
+		mock := userRepo.Mock.On("FindByUsername", ID).Return(ID)
 
 		isExist := userService.CheckUsernameExist(ID)
 
 		assert.Equal(t, isExist, true) // Should be equal
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
 	})
 
 	t.Run("Should return false if the same username is not found", func(t *testing.T) {
 		ID := "example-of-invalid-id"
 
-		userRepo.Mock.On("FindByUsername", ID).Return(ID)
+		mock := userRepo.Mock.On("FindByUsername", ID).Return(ID)
 
 		isExist := userService.CheckUsernameExist(ID)
 
 		assert.Equal(t, isExist, false)
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
 	})
 }
 
