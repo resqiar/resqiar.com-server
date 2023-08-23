@@ -13,5 +13,8 @@ func InitUserRoute(server *fiber.App, handler handlers.UserHandler) {
 	user.Get("/profile", handler.SendCurrentUserProfile)
 	user.Get("/profile/:username", handler.SendUserProfile)
 
+	// check username availability
+	user.Get("/check/:username", handler.SendCheckUsername)
+
 	user.Post("/profile/update", handler.SendUserUpdateProfile)
 }

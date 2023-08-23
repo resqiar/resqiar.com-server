@@ -10,6 +10,7 @@ import (
 type UserHandler interface {
 	SendCurrentUserProfile(c *fiber.Ctx) error
 	SendUserProfile(c *fiber.Ctx) error
+	SendCheckUsername(c *fiber.Ctx) error
 	SendUserUpdateProfile(c *fiber.Ctx) error
 }
 
@@ -47,6 +48,19 @@ func (handler *UserHandlerImpl) SendUserProfile(c *fiber.Ctx) error {
 
 	return c.JSON(&fiber.Map{
 		"result": safeUser,
+	})
+}
+
+func (handler *UserHandlerImpl) SendCheckUsername(c *fiber.Ctx) error {
+	username := c.Params("username")
+	if username == "" {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+
+	exist := handler.UserService.CheckUsernameExist(username)
+
+	return c.JSON(&fiber.Map{
+		"result": exist,
 	})
 }
 
