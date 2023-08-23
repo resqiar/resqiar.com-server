@@ -13,6 +13,7 @@ type UserService interface {
 	RegisterUser(profile *entities.GooglePayload) (*entities.User, error)
 	FindUserByEmail(email string) (*entities.User, error)
 	FindUserByID(userID string) (*entities.SafeUser, error)
+	FindUserByUsername(username string) (*entities.SafeUser, error)
 	CheckUsernameExist(username string) bool
 	UpdateUser(payload *inputs.UpdateUserInput, userID string) error
 }
@@ -56,6 +57,15 @@ func (service *UserServiceImpl) FindUserByEmail(email string) (*entities.User, e
 
 func (service *UserServiceImpl) FindUserByID(userID string) (*entities.SafeUser, error) {
 	safeUser, err := service.Repository.FindByID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return safeUser, nil
+}
+
+func (service *UserServiceImpl) FindUserByUsername(username string) (*entities.SafeUser, error) {
+	safeUser, err := service.Repository.FindByUsername(username)
 	if err != nil {
 		return nil, err
 	}

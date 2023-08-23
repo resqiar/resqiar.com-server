@@ -8,6 +8,7 @@ import (
 )
 
 type UserHandler interface {
+	SendCurrentUserProfile(c *fiber.Ctx) error
 	SendUserProfile(c *fiber.Ctx) error
 	SendUserUpdateProfile(c *fiber.Ctx) error
 }
@@ -17,7 +18,7 @@ type UserHandlerImpl struct {
 	UtilService services.UtilService
 }
 
-func (handler *UserHandlerImpl) SendUserProfile(c *fiber.Ctx) error {
+func (handler *UserHandlerImpl) SendCurrentUserProfile(c *fiber.Ctx) error {
 	userID := c.Locals("userID")
 	if userID == nil {
 		return c.SendStatus(fiber.StatusUnauthorized)
@@ -26,6 +27,22 @@ func (handler *UserHandlerImpl) SendUserProfile(c *fiber.Ctx) error {
 	safeUser, err := handler.UserService.FindUserByID(userID.(string))
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).SendString(err.Error())
+	}
+
+	return c.JSON(&fiber.Map{
+		"result": safeUser,
+	})
+}
+
+func (handler *UserHandlerImpl) SendUserProfile(c *fiber.Ctx) error {
+	username := c.Params("username")
+	if username == "" {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+
+	safeUser, err := handler.UserService.FindUserByUsername(username)
+	if err != nil {
+		return c.SendStatus(fiber.StatusNotFound)
 	}
 
 	return c.JSON(&fiber.Map{
