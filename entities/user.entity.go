@@ -15,6 +15,7 @@ type User struct {
 	Provider   string `gorm:"type:varchar(48); not null"` // Third-party provider (e.g., Google, Facebook)
 	ProviderID string `gorm:"type:text"`                  // ID provided by the third-party provider
 
+	Fullname   string `gorm:"type:varchar(100); nullable;"`
 	Username   string `gorm:"type:varchar(100); unique; not null"`
 	Email      string `gorm:"type:varchar(100); unique; not null"`
 	Bio        string `gorm:"type:text; nullable"`

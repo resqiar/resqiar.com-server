@@ -8,6 +8,7 @@ type SafeUser struct {
 	ID        string
 	CreatedAt time.Time
 
+	Fullname   string
 	Username   string
 	Bio        string
 	PictureURL string
