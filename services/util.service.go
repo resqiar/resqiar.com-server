@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	gonanoid "github.com/matoous/go-nanoid/v2"
+	"resqiar.com-server/config"
 
 	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/microcosm-cc/bluemonday"
@@ -62,7 +63,7 @@ type UtilService interface {
 type UtilServiceImpl struct{}
 
 func InitUtilService() UtilService {
-	initCustomValidation()
+	config.InitCustomValidation(validate)
 
 	return &UtilServiceImpl{}
 }
@@ -125,6 +126,16 @@ func (service *UtilServiceImpl) ValidateInput(payload any) string {
 				break
 			}
 
+			if err.Tag() == "username" {
+				errMessage = err.StructField() + " contains illegal characters"
+				break
+			}
+
+			if err.Tag() == "min" {
+				errMessage = err.StructField() + " field does not meet minimum characters"
+				break
+			}
+
 			if err.Tag() == "max" {
 				errMessage = err.StructField() + " field exceed max characters"
 				break
@@ -141,25 +152,6 @@ func (service *UtilServiceImpl) ValidateInput(payload any) string {
 	}
 
 	return errMessage
-}
-
-func initCustomValidation() {
-	// register custom validation for validator - only do this once
-	validate.RegisterValidation("media_url", func(fl validator.FieldLevel) bool {
-		value := fl.Field().Interface().(string)
-
-		// only allow "" and " " - else must be validated as a URL
-		if value == "" || value == " " {
-			return true
-		}
-
-		// if the value is not "" or " " - we have to validate it as a URL
-		if err := validate.Var(value, "url"); err != nil {
-			return false
-		}
-
-		return true
-	})
 }
 
 func (service *UtilServiceImpl) ParseMD(s string) string {
