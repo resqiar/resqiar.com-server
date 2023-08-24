@@ -14,6 +14,7 @@ import (
 
 type BlogService interface {
 	GetAllBlogs(onlyPublished bool, order constants.Order) ([]entities.SafeBlogAuthor, error)
+	GetAllUserBlogs(username string, order constants.Order) ([]entities.SafeBlogAuthor, error)
 	GetAllSlugs() ([]dto.SitemapOutput, error)
 	GetBlogDetail(opt *types.BlogDetailOpts) (*entities.SafeBlogAuthor, error)
 	CreateBlog(payload *inputs.CreateBlogInput, userID string) (*entities.Blog, error)
@@ -40,7 +41,24 @@ func (service *BlogServiceImpl) GetAllBlogs(onlyPublished bool, dataOrder consta
 	}
 
 	// Get all only-published blogs with the desc order true/false (default to desc / true)
-	blogs, err := service.Repository.GetBlogs(onlyPublished, order)
+	blogs, err := service.Repository.GetBlogs(onlyPublished, order, "")
+	if err != nil {
+		return nil, err
+	}
+
+	return blogs, nil
+}
+
+func (service *BlogServiceImpl) GetAllUserBlogs(username string, dataOrder constants.Order) ([]entities.SafeBlogAuthor, error) {
+	// default data-order to true (DESC)
+	order := true
+
+	if dataOrder == constants.ASC {
+		order = false
+	}
+
+	// Get all only-published blogs with the desc order true/false (default to desc / true)
+	blogs, err := service.Repository.GetBlogs(true, order, username)
 	if err != nil {
 		return nil, err
 	}
