@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"log"
-
 	"resqiar.com-server/constants"
 	"resqiar.com-server/inputs"
 	"resqiar.com-server/services"
