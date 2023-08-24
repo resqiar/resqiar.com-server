@@ -92,8 +92,6 @@ func (handler *BlogHandlerImpl) SendAuthorPublishedBlogs(c *fiber.Ctx) error {
 	var author string = c.Params("author")
 	var qOrder string = c.Query("order", "DESC")
 
-	log.Println(author)
-
 	// if order query does not exist in the map, set to default value
 	if _, exist := constants.ValidOrders[qOrder]; !exist {
 		qOrder = string(constants.DESC)
