@@ -300,15 +300,21 @@ func TestGetBlogDetail(t *testing.T) {
 			},
 		}
 
-		mock := blogRepoTest.Mock.On("GetBlog", "", authorUsername, slug, published).Return(expectedBlog, nil)
+		getBlogOpts := &types.GetBlogOpts{
+			UseID:          "",
+			BlogAuthor:     authorUsername,
+			BlogSlug:       slug,
+			IncludeContent: true,
+			Published:      published,
+		}
 
-		result, err := blogServiceTest.GetBlogDetail(&types.BlogDetailOpts{
-			UseID:      "",
-			BlogAuthor: authorUsername,
-			BlogSlug:   slug,
-			Published:  published,
-			ReturnHTML: true,
-		})
+		blogDetailOpts := &types.BlogDetailOpts{
+			GetBlogOpts: getBlogOpts,
+			ReturnHTML:  true,
+		}
+
+		mock := blogRepoTest.Mock.On("GetBlog", getBlogOpts).Return(expectedBlog, nil)
+		result, err := blogServiceTest.GetBlogDetail(blogDetailOpts)
 
 		assert.Nil(t, err)
 		assert.NotNil(t, result)
@@ -332,15 +338,21 @@ func TestGetBlogDetail(t *testing.T) {
 			},
 		}
 
-		mock := blogRepoTest.Mock.On("GetBlog", blogID, "", "", published).Return(expectedBlog, nil)
+		getBlogOpts := &types.GetBlogOpts{
+			UseID:          blogID,
+			BlogAuthor:     "",
+			BlogSlug:       "",
+			IncludeContent: true,
+			Published:      published,
+		}
 
-		result, err := blogServiceTest.GetBlogDetail(&types.BlogDetailOpts{
-			UseID:      blogID,
-			BlogAuthor: "",
-			BlogSlug:   "",
-			Published:  published,
-			ReturnHTML: false,
-		})
+		blogDetailOpts := &types.BlogDetailOpts{
+			GetBlogOpts: getBlogOpts,
+			ReturnHTML:  true,
+		}
+
+		mock := blogRepoTest.Mock.On("GetBlog", getBlogOpts).Return(expectedBlog, nil)
+		result, err := blogServiceTest.GetBlogDetail(blogDetailOpts)
 
 		assert.Nil(t, err)
 		assert.NotNil(t, result)
@@ -357,15 +369,20 @@ func TestGetBlogDetail(t *testing.T) {
 		slug := "example-of-slug"
 		published := true
 
-		mock := blogRepoTest.Mock.On("GetBlog", "", authorUsername, slug, published).Return(nil, errors.New("Record not found"))
-
-		result, err := blogServiceTest.GetBlogDetail(&types.BlogDetailOpts{
+		getBlogOpts := &types.GetBlogOpts{
 			UseID:      "",
 			BlogAuthor: authorUsername,
 			BlogSlug:   slug,
 			Published:  published,
-			ReturnHTML: false,
-		})
+		}
+
+		blogDetailOpts := &types.BlogDetailOpts{
+			GetBlogOpts: getBlogOpts,
+			ReturnHTML:  false,
+		}
+
+		mock := blogRepoTest.Mock.On("GetBlog", getBlogOpts).Return(nil, errors.New("Record not found"))
+		result, err := blogServiceTest.GetBlogDetail(blogDetailOpts)
 
 		assert.Nil(t, result)
 		assert.NotNil(t, err)
@@ -382,15 +399,20 @@ func TestGetBlogDetail(t *testing.T) {
 		slug := "example-of-wrong-slug"
 		published := true
 
-		mock := blogRepoTest.Mock.On("GetBlog", "", authorUsername, slug, published).Return(nil, errors.New("Record not found"))
-
-		result, err := blogServiceTest.GetBlogDetail(&types.BlogDetailOpts{
+		getBlogOpts := &types.GetBlogOpts{
 			UseID:      "",
 			BlogAuthor: authorUsername,
 			BlogSlug:   slug,
 			Published:  published,
-			ReturnHTML: false,
-		})
+		}
+
+		blogDetailOpts := &types.BlogDetailOpts{
+			GetBlogOpts: getBlogOpts,
+			ReturnHTML:  false,
+		}
+
+		mock := blogRepoTest.Mock.On("GetBlog", getBlogOpts).Return(nil, errors.New("Record not found"))
+		result, err := blogServiceTest.GetBlogDetail(blogDetailOpts)
 
 		assert.Nil(t, result)
 		assert.NotNil(t, err)

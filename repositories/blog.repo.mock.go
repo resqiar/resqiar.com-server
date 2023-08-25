@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"resqiar.com-server/entities"
 	"resqiar.com-server/inputs"
+	"resqiar.com-server/types"
 )
 
 type BlogRepoMock struct {
@@ -20,8 +21,8 @@ func (repo *BlogRepoMock) GetBlogs(onlyPublished bool, desc bool, username strin
 	return nil, args.Error(1)
 }
 
-func (repo *BlogRepoMock) GetBlog(useID string, blogAuthor string, blogSlug string, published bool) (*entities.SafeBlogAuthor, error) {
-	args := repo.Mock.Called(useID, blogAuthor, blogSlug, published)
+func (repo *BlogRepoMock) GetBlog(opts *types.GetBlogOpts) (*entities.SafeBlogAuthor, error) {
+	args := repo.Mock.Called(opts)
 
 	if args.Get(0) != nil {
 		return args.Get(0).(*entities.SafeBlogAuthor), args.Error(1)
