@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"resqiar.com-server/constants"
 	"resqiar.com-server/entities"
+	"resqiar.com-server/inputs"
 	"resqiar.com-server/repositories"
 )
 
@@ -118,5 +119,154 @@ func TestFindUserByID(t *testing.T) {
 		assert.Nil(t, result)
 		assert.NotNil(t, error)
 		assert.EqualError(t, error, "Record not found")
+	})
+}
+
+func TestFindUserByUsername(t *testing.T) {
+	t.Run("Should return a user with the same username", func(t *testing.T) {
+		username := "example-of-valid-username"
+
+		mock := userRepo.Mock.On("FindByUsername", username).Return(username)
+
+		result, error := userService.FindUserByUsername(username)
+
+		assert.Nil(t, error)
+		assert.NotNil(t, result)
+		assert.Equal(t, username, result.Username) // Should be equal
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
+	})
+
+	t.Run("Should return error if the record is not found", func(t *testing.T) {
+		username := "example-of-invalid-username"
+
+		mock := userRepo.Mock.On("FindByUsername", username).Return(username)
+
+		result, error := userService.FindUserByUsername(username)
+
+		assert.Nil(t, result)
+		assert.NotNil(t, error)
+		assert.EqualError(t, error, "Record not found")
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
+	})
+}
+
+func TestCheckUsernameExist(t *testing.T) {
+	t.Run("Should return true if the same username exist", func(t *testing.T) {
+		ID := "example-of-valid-username"
+
+		mock := userRepo.Mock.On("FindByUsername", ID).Return(ID)
+
+		isExist := userService.CheckUsernameExist(ID)
+
+		assert.Equal(t, isExist, true) // Should be equal
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
+	})
+
+	t.Run("Should return false if the same username is not found", func(t *testing.T) {
+		ID := "example-of-invalid-id"
+
+		mock := userRepo.Mock.On("FindByUsername", ID).Return(ID)
+
+		isExist := userService.CheckUsernameExist(ID)
+
+		assert.Equal(t, isExist, false)
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
+	})
+}
+
+func TestUpdateUser(t *testing.T) {
+	t.Run("Should successfully update the user", func(t *testing.T) {
+		userID := "example-of-valid-id"
+
+		payload := &inputs.UpdateUserInput{
+			Username: userID,
+		}
+
+		expectedUser := &entities.SafeUser{
+			Username: payload.Username,
+		}
+
+		firstMock := userRepo.Mock.On("FindByID", userID).Return(&expectedUser, nil)
+		secondMock := userRepo.Mock.On("UpdateUser", userID, payload).Return(nil)
+
+		err := userService.UpdateUser(payload, userID)
+
+		assert.Nil(t, err)
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			firstMock.Unset()
+			secondMock.Unset()
+		})
+	})
+
+	t.Run("Should return error if username not found", func(t *testing.T) {
+		userID := "example-of-invalid-id"
+
+		payload := &inputs.UpdateUserInput{
+			Username: userID,
+		}
+
+		expectedUser := &entities.SafeUser{
+			Username: payload.Username,
+		}
+
+		firstMock := userRepo.Mock.On("FindByID", userID).Return(&expectedUser, nil)
+		secondMock := userRepo.Mock.On("UpdateUser", userID, payload).Return(nil)
+
+		err := userService.UpdateUser(payload, userID)
+
+		assert.NotNil(t, err)
+		assert.Error(t, err)
+		assert.EqualError(t, err, "Record not found")
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			firstMock.Unset()
+			secondMock.Unset()
+		})
+	})
+
+	t.Run("Should return error if update goes wrong", func(t *testing.T) {
+		userID := "example-of-valid-id"
+
+		payload := &inputs.UpdateUserInput{
+			Bio: "new-bio",
+		}
+
+		expectedUser := &entities.SafeUser{
+			Bio: payload.Bio,
+		}
+
+		firstMock := userRepo.Mock.On("FindByID", userID).Return(&expectedUser, nil)
+		secondMock := userRepo.Mock.On("UpdateUser", userID, payload).Return("Something went wrong")
+
+		err := userService.UpdateUser(payload, userID)
+
+		assert.NotNil(t, err)
+		assert.Error(t, err)
+		assert.EqualError(t, err, "Record not found")
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			firstMock.Unset()
+			secondMock.Unset()
+		})
 	})
 }

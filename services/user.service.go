@@ -2,8 +2,10 @@ package services
 
 import (
 	"fmt"
+
 	"resqiar.com-server/constants"
 	"resqiar.com-server/entities"
+	"resqiar.com-server/inputs"
 	"resqiar.com-server/repositories"
 )
 
@@ -11,6 +13,9 @@ type UserService interface {
 	RegisterUser(profile *entities.GooglePayload) (*entities.User, error)
 	FindUserByEmail(email string) (*entities.User, error)
 	FindUserByID(userID string) (*entities.SafeUser, error)
+	FindUserByUsername(username string) (*entities.SafeUser, error)
+	CheckUsernameExist(username string) bool
+	UpdateUser(payload *inputs.UpdateUserInput, userID string) error
 }
 
 type UserServiceImpl struct {
@@ -57,4 +62,35 @@ func (service *UserServiceImpl) FindUserByID(userID string) (*entities.SafeUser,
 	}
 
 	return safeUser, nil
+}
+
+func (service *UserServiceImpl) FindUserByUsername(username string) (*entities.SafeUser, error) {
+	safeUser, err := service.Repository.FindByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	return safeUser, nil
+}
+
+func (service *UserServiceImpl) CheckUsernameExist(username string) bool {
+	exist, _ := service.Repository.FindByUsername(username)
+	if exist != nil {
+		return true
+	}
+
+	return false
+}
+
+func (service *UserServiceImpl) UpdateUser(payload *inputs.UpdateUserInput, userID string) error {
+	user, err := service.Repository.FindByID(userID)
+	if err != nil {
+		return err
+	}
+
+	if err := service.Repository.UpdateUser(user.ID, payload); err != nil {
+		return err
+	}
+
+	return nil
 }

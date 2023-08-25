@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	gonanoid "github.com/matoous/go-nanoid/v2"
+	"resqiar.com-server/config"
 
 	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/microcosm-cc/bluemonday"
@@ -17,6 +18,35 @@ import (
 	"github.com/yuin/goldmark/parser"
 	html "github.com/yuin/goldmark/renderer/html"
 	"go.abhg.dev/goldmark/anchor"
+)
+
+var (
+	validate                  = validator.New()
+	removeNonAlphaNumRegex    = regexp.MustCompile("[^ a-zA-Z0-9]")
+	removeMultipleSpacesRegex = regexp.MustCompile(`\s+`)
+	engine                    = goldmark.New(
+		goldmark.WithExtensions(
+			extension.GFM,
+			highlighting.NewHighlighting(
+				highlighting.WithStyle("paraiso-dark"),
+				highlighting.WithFormatOptions(
+					chromahtml.WithLineNumbers(true),
+				),
+			),
+			&anchor.Extender{
+				Texter:   anchor.Text("#"),
+				Position: anchor.After,
+			},
+		),
+		goldmark.WithParserOptions(
+			parser.WithAutoHeadingID(),
+		),
+		goldmark.WithRendererOptions(
+			html.WithHardWraps(),
+			html.WithUnsafe(),
+		),
+	)
+	sanitizePolicy = bluemonday.UGCPolicy().AllowAttrs("style").OnElements("p", "span", "pre")
 )
 
 type UtilService interface {
@@ -32,10 +62,11 @@ type UtilService interface {
 
 type UtilServiceImpl struct{}
 
-var (
-	removeNonAlphaNumRegex    = regexp.MustCompile("[^ a-zA-Z0-9]")
-	removeMultipleSpacesRegex = regexp.MustCompile(`\s+`)
-)
+func InitUtilService() UtilService {
+	config.InitCustomValidation(validate)
+
+	return &UtilServiceImpl{}
+}
 
 func (service *UtilServiceImpl) FormatUsername(name string) string {
 	// remove any non-alphanumeric characters from the string
@@ -81,9 +112,6 @@ func (service *UtilServiceImpl) ValidateInput(payload any) string {
 		return "Invalid Payload"
 	}
 
-	// instantiate new instance
-	validate := validator.New()
-
 	// save error messages here
 	var errMessage string
 
@@ -98,12 +126,22 @@ func (service *UtilServiceImpl) ValidateInput(payload any) string {
 				break
 			}
 
+			if err.Tag() == "username" {
+				errMessage = err.StructField() + " contains illegal characters"
+				break
+			}
+
+			if err.Tag() == "min" {
+				errMessage = err.StructField() + " field does not meet minimum characters"
+				break
+			}
+
 			if err.Tag() == "max" {
 				errMessage = err.StructField() + " field exceed max characters"
 				break
 			}
 
-			if err.Tag() == "url" {
+			if err.Tag() == "url" || err.Tag() == "media_url" {
 				errMessage = err.StructField() + " field is not a valid URL"
 				break
 			}
@@ -115,32 +153,6 @@ func (service *UtilServiceImpl) ValidateInput(payload any) string {
 
 	return errMessage
 }
-
-var (
-	engine = goldmark.New(
-		goldmark.WithExtensions(
-			extension.GFM,
-			highlighting.NewHighlighting(
-				highlighting.WithStyle("paraiso-dark"),
-				highlighting.WithFormatOptions(
-					chromahtml.WithLineNumbers(true),
-				),
-			),
-			&anchor.Extender{
-				Texter:   anchor.Text("#"),
-				Position: anchor.After,
-			},
-		),
-		goldmark.WithParserOptions(
-			parser.WithAutoHeadingID(),
-		),
-		goldmark.WithRendererOptions(
-			html.WithHardWraps(),
-			html.WithUnsafe(),
-		),
-	)
-	sanitizePolicy = bluemonday.UGCPolicy().AllowAttrs("style").OnElements("p", "span", "pre")
-)
 
 func (service *UtilServiceImpl) ParseMD(s string) string {
 	var buf bytes.Buffer
