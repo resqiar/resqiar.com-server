@@ -1,9 +1,14 @@
 package types
 
+type GetBlogOpts struct {
+	UseID          string
+	BlogAuthor     string
+	BlogSlug       string
+	IncludeContent bool
+	Published      bool
+}
+
 type BlogDetailOpts struct {
-	UseID      string
-	BlogAuthor string
-	BlogSlug   string
-	Published  bool
+	*GetBlogOpts
 	ReturnHTML bool
 }

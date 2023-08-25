@@ -21,6 +21,9 @@ type Blog struct {
 	Published bool   `gorm:"type:bool; default:false"`
 	CoverURL  string `gorm:"type:text"`
 
+	Prev string `gorm:"type:varchar(32)"`
+	Next string `gorm:"type:varchar(32)"`
+
 	AuthorID string `gorm:"type:text; not null"`
 }
 

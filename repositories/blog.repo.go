@@ -7,6 +7,7 @@ import (
 
 	"resqiar.com-server/entities"
 	"resqiar.com-server/inputs"
+	"resqiar.com-server/types"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -14,7 +15,7 @@ import (
 
 type BlogRepository interface {
 	GetBlogs(onlyPublished bool, desc bool, username string) ([]entities.SafeBlogAuthor, error)
-	GetBlog(useID string, blogAuthor string, blogSlug string, published bool) (*entities.SafeBlogAuthor, error)
+	GetBlog(opts *types.GetBlogOpts) (*entities.SafeBlogAuthor, error)
 	CreateBlog(input *entities.Blog) (*entities.Blog, error)
 	UpdateBlog(blogID string, safe *inputs.SafeUpdateBlogInput) error
 	GetByIDAndAuthor(blogID string, userID string) (*entities.Blog, error)
@@ -40,7 +41,7 @@ func (repo *BlogRepoImpl) GetBlogs(onlyPublished bool, orderDesc bool, username 
 	query := repo.db.Model(&entities.Blog{})
 
 	// Define SELECT and JOIN for database query operations
-	BLOG_SELECT_SQL := "blogs.id, blogs.slug, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.cover_url, blogs.author_id, "
+	BLOG_SELECT_SQL := "blogs.id, blogs.slug, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.cover_url, blogs.author_id, blogs.prev, blogs.next, "
 	AUTHOR_SELECT_SQL := "users.id AS author_id, users.username AS author_username, users.created_at AS author_created_at, users.bio AS author_bio, users.picture_url AS author_picture_url, users.is_tester AS author_is_tester"
 	JOIN_SQL := "JOIN users ON blogs.author_id = users.id"
 
@@ -107,29 +108,35 @@ func (repo *BlogRepoImpl) GetBlogs(onlyPublished bool, orderDesc bool, username 
 	return blogs, nil
 }
 
-func (repo *BlogRepoImpl) GetBlog(useID string, blogAuthor string, blogSlug string, published bool) (*entities.SafeBlogAuthor, error) {
+func (repo *BlogRepoImpl) GetBlog(opts *types.GetBlogOpts) (*entities.SafeBlogAuthor, error) {
 	var blog entities.SafeBlogAuthor
 	var condition string
 	var args []interface{}
 
+	var CONTENT_SELECT_SQL string
+
+	if opts.IncludeContent {
+		CONTENT_SELECT_SQL = "blogs.content, "
+	}
+
 	// Define SELECT and JOIN for database query operations
-	BLOG_SELECT_SQL := "blogs.id, blogs.slug, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.content, blogs.cover_url, blogs.author_id, "
+	BLOG_SELECT_SQL := "blogs.id, blogs.slug, blogs.created_at, blogs.updated_at, blogs.published_at, blogs.title, blogs.summary, blogs.cover_url, blogs.author_id, blogs.prev, blogs.next, "
 	AUTHOR_SELECT_SQL := "users.id AS author_id, users.username AS author_username, users.created_at AS author_created_at, users.bio AS author_bio, users.picture_url AS author_picture_url, users.is_tester AS author_is_tester"
 	JOIN_SQL := "JOIN users ON blogs.author_id = users.id"
 
 	result := repo.db.Model(&entities.Blog{}).
-		Select(BLOG_SELECT_SQL + AUTHOR_SELECT_SQL).
+		Select(BLOG_SELECT_SQL + CONTENT_SELECT_SQL + AUTHOR_SELECT_SQL).
 		Joins(JOIN_SQL)
 
-	if useID != "" {
+	if opts.UseID != "" {
 		condition = "blogs.ID = ?" // use ID instead of slug
-		args = []interface{}{useID}
+		args = []interface{}{opts.UseID}
 	} else {
 		condition = "blogs.slug = ? AND users.username = ?" // use slug and username
-		args = []interface{}{blogSlug, blogAuthor}
+		args = []interface{}{opts.BlogSlug, opts.BlogAuthor}
 	}
 
-	if published {
+	if opts.Published {
 		condition += " AND published = ?"
 		args = append(args, true)
 	}
