@@ -15,7 +15,9 @@ func InitBlogRoute(server *fiber.App, handler handlers.BlogHandler) {
 	// be available to its author scope.
 	blog.Get("/list", handler.SendPublishedBlogs)
 	blog.Get("/list/slug", handler.SendPublishedSlugs)
+	blog.Get("/get/published/:id", handler.SendPublishedBlogByID)
 	blog.Get("/get/:author/:slug", handler.SendPublishedBlog)
+	blog.Get("/get/:author", handler.SendAuthorPublishedBlogs)
 
 	blog.Post("/list/current", middlewares.ProtectedRoute, handler.SendCurrentUserBlogs)
 	blog.Post("/get/preview", middlewares.ProtectedRoute, handler.SendCurrentUserBlog)

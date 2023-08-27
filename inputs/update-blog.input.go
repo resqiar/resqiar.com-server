@@ -8,6 +8,9 @@ type UpdateBlogInput struct {
 	Summary  string `validate:"omitempty,max=300"`
 	Content  string `validate:"omitempty,max=50000"`
 	CoverURL string `validate:"omitempty,url"`
+
+	Prev string `validate:"omitempty,max=32"`
+	Next string `validate:"omitempty,max=32"`
 }
 
 type SafeUpdateBlogInput struct {
@@ -16,4 +19,7 @@ type SafeUpdateBlogInput struct {
 	Content   string
 	CoverURL  string
 	UpdatedAt time.Time
+
+	Prev string `validate:"omitempty,max=32"`
+	Next string `validate:"omitempty,max=32"`
 }

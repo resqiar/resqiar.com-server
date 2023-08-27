@@ -14,5 +14,8 @@ type SafeBlog struct {
 	Content  string
 	CoverURL string
 
+	Prev string
+	Next string
+
 	AuthorID string
 }

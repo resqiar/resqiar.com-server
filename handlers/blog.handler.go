@@ -12,7 +12,9 @@ import (
 type BlogHandler interface {
 	SendBlogList(c *fiber.Ctx) error
 	SendPublishedBlog(c *fiber.Ctx) error
+	SendPublishedBlogByID(c *fiber.Ctx) error
 	SendPublishedBlogs(c *fiber.Ctx) error
+	SendAuthorPublishedBlogs(c *fiber.Ctx) error
 	SendPublishedSlugs(c *fiber.Ctx) error
 	SendBlogCreate(c *fiber.Ctx) error
 	SendCurrentUserBlogs(c *fiber.Ctx) error
@@ -46,17 +48,43 @@ func (handler *BlogHandlerImpl) SendBlogList(c *fiber.Ctx) error {
 	})
 }
 
+func (handler *BlogHandlerImpl) SendPublishedBlogByID(c *fiber.Ctx) error {
+	ID := c.Params("id")
+
+	result, err := handler.BlogService.GetBlogDetail(&types.BlogDetailOpts{
+		GetBlogOpts: &types.GetBlogOpts{
+			UseID:          ID,
+			BlogSlug:       "",
+			BlogAuthor:     "",
+			IncludeContent: false,
+			Published:      true,
+		},
+		ReturnHTML: false,
+	})
+	if err != nil {
+		return c.SendStatus(fiber.StatusNotFound)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+		"result": result,
+	})
+}
+
 func (handler *BlogHandlerImpl) SendPublishedBlog(c *fiber.Ctx) error {
 	blogAuthor := c.Params("author")
 	blogSlug := c.Params("slug")
 
 	result, err := handler.BlogService.GetBlogDetail(&types.BlogDetailOpts{
-		UseID:      "",
-		BlogAuthor: blogAuthor,
-		BlogSlug:   blogSlug,
-		Published:  true,
+		GetBlogOpts: &types.GetBlogOpts{
+			UseID:          "",
+			BlogAuthor:     blogAuthor,
+			BlogSlug:       blogSlug,
+			IncludeContent: true,
+			Published:      true,
+		},
 		ReturnHTML: true,
 	})
+
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
 	}
@@ -76,6 +104,26 @@ func (handler *BlogHandlerImpl) SendPublishedBlogs(c *fiber.Ctx) error {
 
 	// send only PUBLISHED and SAFE blogs
 	result, err := handler.BlogService.GetAllBlogs(true, constants.Order(qOrder))
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
+		"result": result,
+	})
+}
+
+func (handler *BlogHandlerImpl) SendAuthorPublishedBlogs(c *fiber.Ctx) error {
+	var author string = c.Params("author")
+	var qOrder string = c.Query("order", "DESC")
+
+	// if order query does not exist in the map, set to default value
+	if _, exist := constants.ValidOrders[qOrder]; !exist {
+		qOrder = string(constants.DESC)
+	}
+
+	// send only PUBLISHED and SAFE blogs for specified author
+	result, err := handler.BlogService.GetAllUserBlogs(author, constants.Order(qOrder))
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -257,10 +305,13 @@ func (handler *BlogHandlerImpl) SendMyBlog(c *fiber.Ctx) error {
 	}
 
 	blog, err := handler.BlogService.GetBlogDetail(&types.BlogDetailOpts{
-		UseID:      payload.ID,
-		BlogAuthor: "",
-		BlogSlug:   "",
-		Published:  false,
+		GetBlogOpts: &types.GetBlogOpts{
+			UseID:          payload.ID,
+			BlogAuthor:     "",
+			BlogSlug:       "",
+			IncludeContent: true,
+			Published:      false,
+		},
 		ReturnHTML: false,
 	})
 	if err != nil {
