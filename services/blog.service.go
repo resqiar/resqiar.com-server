@@ -95,12 +95,18 @@ func (service *BlogServiceImpl) GetAllSlugs() ([]dto.SitemapOutput, error) {
 // It returns the retrieved blog and any error encountered during the process.
 // If no blog is found or an error occurs, it returns an appropriate error.
 func (service *BlogServiceImpl) GetBlogDetail(opt *types.BlogDetailOpts) (*entities.SafeBlogAuthor, error) {
-	blog, err := service.Repository.GetBlog(opt.UseID, opt.BlogAuthor, opt.BlogSlug, opt.Published)
+	blog, err := service.Repository.GetBlog(&types.GetBlogOpts{
+		UseID:          opt.UseID,
+		BlogAuthor:     opt.BlogAuthor,
+		BlogSlug:       opt.BlogSlug,
+		IncludeContent: opt.IncludeContent,
+		Published:      opt.Published,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	if opt.ReturnHTML {
+	if opt.IncludeContent && opt.ReturnHTML {
 		// replace the content of the blog with the parsed HTML instead of pure markdown
 		blog.Content = service.UtilService.ParseMD(blog.Content)
 	}
@@ -113,6 +119,9 @@ func (service *BlogServiceImpl) CreateBlog(payload *inputs.CreateBlogInput, user
 		Title:   payload.Title,
 		Summary: payload.Summary,
 		Content: payload.Content,
+
+		Prev: payload.Prev,
+		Next: payload.Next,
 
 		// when creating blog, always set published to false.
 		// although the default value in database is false,
@@ -142,6 +151,8 @@ func (service *BlogServiceImpl) EditBlog(payload *inputs.UpdateBlogInput, userID
 		Summary:  payload.Summary,
 		Content:  payload.Content,
 		CoverURL: payload.CoverURL,
+		Prev:     payload.Prev,
+		Next:     payload.Next,
 	}
 
 	if err := service.Repository.UpdateBlog(blog.ID, safe); err != nil {
