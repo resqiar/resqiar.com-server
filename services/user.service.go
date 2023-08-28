@@ -10,6 +10,7 @@ import (
 )
 
 type UserService interface {
+	GetUsernameList() ([]string, error)
 	RegisterUser(profile *entities.GooglePayload) (*entities.User, error)
 	FindUserByEmail(email string) (*entities.User, error)
 	FindUserByID(userID string) (*entities.SafeUser, error)
@@ -21,6 +22,15 @@ type UserService interface {
 type UserServiceImpl struct {
 	UtilService UtilService
 	Repository  repositories.UserRepository
+}
+
+func (service *UserServiceImpl) GetUsernameList() ([]string, error) {
+	result, err := service.Repository.GetUsernameList()
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (service *UserServiceImpl) RegisterUser(profile *entities.GooglePayload) (*entities.User, error) {
