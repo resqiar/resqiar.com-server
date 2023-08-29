@@ -19,11 +19,22 @@ func InitUserRepo(db *gorm.DB) UserRepository {
 }
 
 type UserRepository interface {
+	GetUsernameList() ([]string, error)
 	CreateUser(*entities.User) (*entities.User, error)
 	FindByEmail(email string) (*entities.User, error)
 	FindByID(ID string) (*entities.SafeUser, error)
 	FindByUsername(username string) (*entities.SafeUser, error)
 	UpdateUser(ID string, payload *inputs.UpdateUserInput) error
+}
+
+func (repo *UserRepoImpl) GetUsernameList() ([]string, error) {
+	var username []string
+
+	if err := repo.db.Model(&entities.User{}).Select("username").Find(&username).Error; err != nil {
+		return nil, err
+	}
+
+	return username, nil
 }
 
 func (repo *UserRepoImpl) CreateUser(user *entities.User) (*entities.User, error) {

@@ -12,6 +12,16 @@ type UserRepoMock struct {
 	Mock mock.Mock
 }
 
+func (repo *UserRepoMock) GetUsernameList() ([]string, error) {
+	args := repo.Mock.Called()
+
+	if args.Get(0) != nil {
+		return args.Get(0).([]string), nil
+	}
+
+	return nil, args.Error(1)
+}
+
 func (repo *UserRepoMock) CreateUser(user *entities.User) (*entities.User, error) {
 	args := repo.Mock.Called(user)
 
