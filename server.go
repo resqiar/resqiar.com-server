@@ -24,7 +24,7 @@ func main() {
 
 	// Setup CORS
 	server.Use(cors.New(cors.Config{
-		AllowOrigins:     os.Getenv("CLIENT_URL"),
+		AllowOrigins:     os.Getenv("CORS_CLIENT_URL"),
 		AllowHeaders:     "Origin, Content-Type, Accept",
 		AllowCredentials: true,
 	}))
