@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,6 +16,39 @@ var userRepo = &repositories.UserRepoMock{}
 var userService = UserServiceImpl{
 	UtilService: &utilService,
 	Repository:  userRepo,
+}
+
+func TestGetUsernameList(t *testing.T) {
+	t.Run("Should return a string array of username", func(t *testing.T) {
+		expected := []string{
+			"example-user-1",
+			"example-user-2",
+			"example-user-3",
+		}
+
+		mock := userRepo.Mock.On("GetUsernameList").Return(expected, nil)
+
+		results, err := userService.GetUsernameList()
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, results)
+		assert.IsType(t, []string{}, results)
+
+		t.Cleanup(func() {
+			// Cleanup mocking
+			mock.Unset()
+		})
+	})
+
+	t.Run("Should return an error if query fails", func(t *testing.T) {
+		userRepo.Mock.On("GetUsernameList").Return(nil, errors.New("Something went wrong"))
+
+		results, err := userService.GetUsernameList()
+
+		assert.Nil(t, results)
+		assert.NotNil(t, err)
+		assert.Error(t, err)
+	})
 }
 
 func TestRegisterUser(t *testing.T) {

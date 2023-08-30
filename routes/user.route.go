@@ -10,6 +10,7 @@ import (
 func InitUserRoute(server *fiber.App, handler handlers.UserHandler) {
 	user := server.Group("user")
 
+	user.Get("/list/username", handler.SendUsernameList)
 	user.Get("/profile", middlewares.ProtectedRoute, handler.SendCurrentUserProfile)
 	user.Get("/profile/:username", handler.SendUserProfile)
 	// check username availability

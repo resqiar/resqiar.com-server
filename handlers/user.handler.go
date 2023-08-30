@@ -8,6 +8,7 @@ import (
 )
 
 type UserHandler interface {
+	SendUsernameList(c *fiber.Ctx) error
 	SendCurrentUserProfile(c *fiber.Ctx) error
 	SendUserProfile(c *fiber.Ctx) error
 	SendCheckUsername(c *fiber.Ctx) error
@@ -17,6 +18,17 @@ type UserHandler interface {
 type UserHandlerImpl struct {
 	UserService services.UserService
 	UtilService services.UtilService
+}
+
+func (handler *UserHandlerImpl) SendUsernameList(c *fiber.Ctx) error {
+	username, err := handler.UserService.GetUsernameList()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	return c.JSON(&fiber.Map{
+		"result": username,
+	})
 }
 
 func (handler *UserHandlerImpl) SendCurrentUserProfile(c *fiber.Ctx) error {
