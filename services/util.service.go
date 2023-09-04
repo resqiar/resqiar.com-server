@@ -2,8 +2,11 @@ package services
 
 import (
 	"bytes"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 	"regexp"
+	"resqiar.com-server/entities"
+	"resqiar.com-server/protobuf"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -58,6 +61,8 @@ type UtilService interface {
 	// ParseMD converts Markdown content into safe & sanitized HTML.
 	// If error happens, it will merely returns empty string.
 	ParseMD(s string) string
+
+	ConvertToPROTO(in *entities.SafeBlogAuthor) *protobuf.SafeBlogAuthor
 }
 
 type UtilServiceImpl struct{}
@@ -164,4 +169,42 @@ func (service *UtilServiceImpl) ParseMD(s string) string {
 
 	sanitized := string(sanitizePolicy.SanitizeBytes(buf.Bytes()))
 	return sanitized
+}
+
+func (service *UtilServiceImpl) ConvertToPROTO(in *entities.SafeBlogAuthor) *protobuf.SafeBlogAuthor {
+	return &protobuf.SafeBlogAuthor{
+		ID:          in.ID,
+		Slug:        in.Slug,
+		CreatedAt:   timestamppb.New(in.CreatedAt),
+		UpdatedAt:   timestamppb.New(in.UpdatedAt),
+		PublishedAt: timestamppb.New(in.PublishedAt),
+
+		Title:    in.Title,
+		Summary:  in.Summary,
+		Content:  in.Content,
+		CoverURL: in.CoverURL,
+
+		Prev: in.Prev,
+		Next: in.Next,
+
+		AuthorID: in.AuthorID,
+		Author: &protobuf.SafeUser{
+			ID:        in.Author.ID,
+			CreatedAt: timestamppb.New(in.Author.CreatedAt),
+
+			Fullname:   in.Author.Fullname,
+			Username:   in.Author.Username,
+			Bio:        in.Author.Bio,
+			PictureURL: in.Author.PictureURL,
+
+			WebsiteURL:   in.Author.WebsiteURL,
+			GithubURL:    in.Author.GithubURL,
+			LinkedinURL:  in.Author.LinkedinURL,
+			InstagramURL: in.Author.InstagramURL,
+			TwitterURL:   in.Author.TwitterURL,
+			YoutubeURL:   in.Author.YoutubeURL,
+
+			IsTester: in.Author.IsTester,
+		},
+	}
 }

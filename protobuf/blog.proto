@@ -7,8 +7,8 @@ message SafeBlog {
     string ID = 1;
     string Slug = 2;
     google.protobuf.Timestamp CreatedAt = 3;
-    string UpdatedAt = 4;
-    string PublishedAt = 5;
+    google.protobuf.Timestamp UpdatedAt = 4;
+    google.protobuf.Timestamp PublishedAt = 5;
 
     string Title = 6;
     string Summary = 7;
@@ -41,6 +41,20 @@ message SafeUser {
 }
 
 message SafeBlogAuthor {
-    SafeBlog safe_blog = 1;
-    SafeUser author = 2;
+    string ID = 1;
+    string Slug = 2;
+    google.protobuf.Timestamp CreatedAt = 3;
+    google.protobuf.Timestamp UpdatedAt = 4;
+    google.protobuf.Timestamp PublishedAt = 5;
+
+    string Title = 6;
+    string Summary = 7;
+    string Content = 8;
+    string CoverURL = 9;
+
+    string Prev = 10;
+    string Next = 11;
+
+    string AuthorID = 12;
+    SafeUser Author = 13;
 }

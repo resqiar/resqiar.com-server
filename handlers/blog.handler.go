@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"google.golang.org/protobuf/proto"
 	"resqiar.com-server/constants"
 	"resqiar.com-server/inputs"
 	"resqiar.com-server/services"
@@ -12,6 +13,7 @@ import (
 type BlogHandler interface {
 	SendBlogList(c *fiber.Ctx) error
 	SendPublishedBlog(c *fiber.Ctx) error
+	SendPublishedBlogPROTO(c *fiber.Ctx) error
 	SendPublishedBlogByID(c *fiber.Ctx) error
 	SendPublishedBlogs(c *fiber.Ctx) error
 	SendAuthorPublishedBlogs(c *fiber.Ctx) error
@@ -92,6 +94,35 @@ func (handler *BlogHandlerImpl) SendPublishedBlog(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(&fiber.Map{
 		"result": result,
 	})
+}
+
+func (handler *BlogHandlerImpl) SendPublishedBlogPROTO(c *fiber.Ctx) error {
+	blogAuthor := c.Params("author")
+	blogSlug := c.Params("slug")
+
+	result, err := handler.BlogService.GetBlogDetail(&types.BlogDetailOpts{
+		GetBlogOpts: &types.GetBlogOpts{
+			UseID:          "",
+			BlogAuthor:     blogAuthor,
+			BlogSlug:       blogSlug,
+			IncludeContent: true,
+			Published:      true,
+		},
+		ReturnHTML: true,
+	})
+
+	if err != nil {
+		return c.SendStatus(fiber.StatusNotFound)
+	}
+
+	p := handler.UtilService.ConvertToPROTO(result)
+	b, err := proto.Marshal(p)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	c.Set("Content-Type", "application/x-protobuf")
+	return c.Status(fiber.StatusOK).Send(b)
 }
 
 func (handler *BlogHandlerImpl) SendPublishedBlogs(c *fiber.Ctx) error {
