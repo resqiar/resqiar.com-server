@@ -1,0 +1,46 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "protobuf/";
+
+message SafeBlog {
+    string ID = 1;
+    string Slug = 2;
+    google.protobuf.Timestamp CreatedAt = 3;
+    string UpdatedAt = 4;
+    string PublishedAt = 5;
+
+    string Title = 6;
+    string Summary = 7;
+    string Content = 8;
+    string CoverURL = 9;
+
+    string Prev = 10;
+    string Next = 11;
+
+    string AuthorID = 12;
+}
+
+message SafeUser {
+    string ID = 1;
+    google.protobuf.Timestamp CreatedAt = 2;
+
+    string Fullname = 3;
+    string Username = 4;
+    string Bio = 5;
+    string PictureURL = 6;
+
+    string WebsiteURL = 7;
+    string GithubURL = 8;
+    string LinkedinURL = 9;
+    string InstagramURL = 10;
+    string TwitterURL = 11;
+    string YoutubeURL = 12;
+
+    bool IsTester = 13;
+}
+
+message SafeBlogAuthor {
+    SafeBlog safe_blog = 1;
+    SafeUser author = 2;
+}
