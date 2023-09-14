@@ -13,14 +13,23 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/template/html/v2"
 	"github.com/joho/godotenv"
+)
+
+var (
+	engine = html.New("./views", ".html")
 )
 
 func main() {
 	// Load env variables from .env file
 	godotenv.Load()
 
-	server := fiber.New()
+	server := fiber.New(fiber.Config{
+		Views: engine,
+	})
+
+	server.Static("/", "./views/static")
 
 	// Setup CORS
 	server.Use(cors.New(cors.Config{
