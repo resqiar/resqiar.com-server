@@ -2,8 +2,18 @@
 export default {
   content: ["./views/**/*.html"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        brand: {
+          primary: '#995600',
+          light: '#ffa500'
+        }
+      }
+    },
   },
   plugins: [require('daisyui')],
+  daisyui: {
+    themes: ['lofi'],
+  }
 }
 
