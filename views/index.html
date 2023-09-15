@@ -1,6 +1,118 @@
-{{ template "Layout" }}
+{{ template "Layout" . }}
 
-{{ define "Body"}}
+{{ define "MetaHead" }}
+    <script src="https://cdn.jsdelivr.net/npm/swiffy-slider@1.6.0/dist/js/swiffy-slider.min.js" crossorigin="anonymous" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiffy-slider@1.6.0/dist/js/swiffy-slider-extensions.min.js" crossorigin="anonymous" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/swiffy-slider@1.6.0/dist/css/swiffy-slider.min.css" rel="stylesheet" crossorigin="anonymous">
+{{ end }}
+
+{{ define "Body" }}
     {{ template "MainHeader" 0 }}
     {{ template "MainHero" }}
+
+    <!-- Projects Showcase -->
+    <div class="mx-4 my-12 lg:mx-28">
+        <div class="mb-6 mt-12">
+            <h1 class="text-2xl font-bold">Projects Showcase</h1>
+            <p class="mt-2 text-justify font-medium lg:max-w-[80%]">
+                Discover featured projects that I worked. From impressive websites, servers, AI, IoT, to
+                just sandbox. Please note that this is just a selection of my recent work; you can find more
+                projects in my <a href="https://github.com/resqiar" target="_blank" class="underline"
+                    >GitHub repositories</a
+                >. Take a moment to explore, and feel free to reach out if you have any questions or
+                collaboration opportunities.
+            </p>
+        </div>
+
+    <div class="flex flex-col gap-8">
+        {{ range . }}
+        <div class="flex flex-col items-center gap-8 rounded-lg lg:flex-row">
+            <div class="w-full lg:w-[400px]">
+                <div class="w-full lg:!w-[400px] swiffy-slider slider-item-ratio slider-item-ratio-16x9 w-full slider-nav-animation slider-nav-animation-fadein slider-nav-autoplay slider-nav-autopause slider-nav-mousedrag" data-slider-nav-autoplay-interval="3000">
+                    <ul class="slider-container">
+                        {{ range .Images }}
+                            <li>
+                                <img
+                                    src="{{ . }}" 
+                                    class="h-[250px] w-[400px] object-cover"
+                                    width="100"
+                                    heigth="50"
+                                    loading="lazy"
+                                />
+                            </li>
+                        {{ end }}
+                    </ul>
+
+                    <div class="slider-indicators">
+                        {{ range .Images }}
+                            <button></button>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+
+                <div class="flex flex-col gap-2">
+                    <h1 class="text-2xl font-bold">{{ .Title }}</h1>
+                    <p class="text-justify font-medium">
+                        {{ .Description }}
+                    </p>
+
+                    <div class="my-2">
+                        <p class="font-bold">Technologies used:</p>
+
+                        <div class="mt-2 flex gap-3">
+                            {{ range .Techs }}
+                                <img
+                                    src="{{ .URL }}"
+                                    class="h-[25px] lg:h-[35px] object-cover"
+                                    alt={{ .Title }}
+                                    title={{ .Title }}
+                                />
+                            {{ end }}
+                        </div>
+                    </div>
+
+                    <div class="mt-2 flex gap-2">
+                        {{ if .DemoURL }}
+                            <a href="{{ .DemoURL }}" target="_blank" class="btn">Demo</a>
+                        {{ end }}
+
+                        {{ if .SourceURL }}
+                            <a href="{{ .SourceURL }}" target="_blank" class="btn">Source Code</a>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+
+    <div class="flex w-full flex-col items-center bg-base-300 px-4 py-8 lg:px-28 lg:py-28">
+        <div class="my-8">
+            <h1 class="text-4xl font-bold">Statistic Speaks for Itself</h1>
+
+            <img
+                src="https://wakatime.com/badge/user/e1e04b0c-4ecc-489e-b9aa-00c30a1aab60.svg"
+                alt="Total Hours"
+                class="mb-4 mt-1"
+                loading="lazy"
+            />
+
+            <p>
+                Wakatime count and generates insightful charts based on my programming activities and the
+                tools I've used over time. Details are available in my account.
+            </p>
+            <a href="https://wakatime.com/@resqiar" class="text-primary hover:underline"
+                >See Wakatime account detail</a
+            >
+        </div>
+
+        <div>
+            <img
+                alt="Wakatime Stats"
+                src="https://github-readme-stats.vercel.app/api/wakatime?username=resqiar&theme=midnight-purple&layout=compact"
+                loading="lazy"
+            />
+        </div>
+    </div>
 {{ end }}

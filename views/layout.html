@@ -6,9 +6,10 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="/css/output.css" rel="stylesheet">
+        {{ template "MetaHead" }}
     </head>
     <body>
-        {{ template "Body" }}
+        {{ template "Body" . }}
     </body>
 </html>
 {{ end }}
