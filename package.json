@@ -1,15 +1,11 @@
 {
   "name": "api.resqiar.com",
-  "module": "index.ts",
-  "type": "module",
-  "devDependencies": {
-    "bun-types": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
+  "scripts": {
+    "build": "bun tailwindcss -i ./views/static/css/global.css -o ./views/static/css/output.css",
+    "build:watch": "bun tailwindcss -i ./views/static/css/global.css -o ./views/static/css/output.css --watch"
   },
   "dependencies": {
-    "daisyui": "^3.7.4",
-    "tailwindcss": "^3.3.3"
+    "daisyui": "3.7.4",
+    "tailwindcss": "3.3.3"
   }
 }
