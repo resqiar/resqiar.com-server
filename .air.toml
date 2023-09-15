@@ -2,6 +2,8 @@
 send_interrupt = true
 delay = 1000
 kill_delay = 500      # 500 ms
+exclude_dir = ["node_modules", "views/static"]
+exclude_unchanged = true
 
 [misc]
 # Delete tmp directory on exit

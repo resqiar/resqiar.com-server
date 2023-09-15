@@ -29,3 +29,6 @@ tmp
 
 # code coverage result
 cov
+
+# node
+node_modules
