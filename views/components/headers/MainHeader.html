@@ -10,17 +10,17 @@
 		<ul class="menu menu-horizontal p-0 text-[14px] font-semibold">
 			<li>
 				<a href="/web" class="m-0 mx-2 rounded p-0">
-					<p class="px-2 py-2 {{ if eq . 0 }} border-b-2 border-solid border-brand-light {{ end }}">Dashboard</p>
+					<p class="px-2 py-2 {{ if eq .Header 0 }} border-b-2 border-solid border-brand-light {{ end }}">Dashboard</p>
 				</a>
 			</li>
 			<li>
 				<a href="/web/blog" class="m-0 mx-2 rounded p-0">
-					<p class="px-2 py-2 {{ if eq . 1 }} border-b-2 border-solid border-brand-light {{ end }}">Blog</p>
+					<p class="px-2 py-2 {{ if eq .Header 1 }} border-b-2 border-solid border-brand-light {{ end }}">Blog</p>
 				</a>
 			</li>
 			<li>
 				<a href="/web/playground" class="m-0 mx-2 rounded p-0">
-					<p class="px-2 py-2 {{ if eq . 2 }} border-b-2 border-solid border-brand-light {{ end }}">Playground</p>
+					<p class="px-2 py-2 {{ if eq .Header 2 }} border-b-2 border-solid border-brand-light {{ end }}">Playground</p>
 				</a>
 			</li>
 			<li>
@@ -36,29 +36,29 @@
 
 	<!-- End -->
 	<div class="navbar-end flex items-center lg:gap-2">
-		<!-- {#if user} -->
+		{{ if .UserProfile }}
 		<!-- ONLY SHOW WHEN USER LOGGED-IN -->
-		<!-- 	<div class="dropdown dropdown-end dropdown-bottom"> -->
-		<!-- 		<label tabindex="-1" class="btn btn-square btn-ghost" for="menu-dropdown"> -->
-		<!-- 			<div class="avatar placeholder"> -->
-		<!-- 				<div class="w-8 rounded-full bg-neutral-focus text-neutral-content"> -->
-		<!-- 					{#if user.PictureURL} -->
-		<!-- 						<img src={user.PictureURL} alt={user.Username[0]} referrerpolicy="no-referrer" /> -->
-		<!-- 					{:else} -->
-		<!-- 						<span class="text-sm">{user.Username[0]}</span> -->
-		<!-- 					{/if} -->
-		<!-- 				</div> -->
-		<!-- 			</div> -->
-		<!-- 		</label> -->
-		<!---->
-		<!-- 		<MainMenu username={user.Username} /> -->
-		<!-- 	</div> -->
-		<!-- {:else} -->
+			<div class="dropdown dropdown-end dropdown-bottom">
+				<label tabindex="-1" class="btn btn-square btn-ghost" for="menu-dropdown">
+					<div class="avatar placeholder">
+						<div class="w-8 rounded-full bg-neutral-focus text-neutral-content">
+							{{ if .UserProfile.PictureURL }}
+								<img src={{ .UserProfile.PictureURL }} alt={{ .UserProfile.Username }} referrerpolicy="no-referrer" />
+							{{ else }}
+								<span class="text-sm">{{ .UserProfile.Username }}</span>
+							{{ end }}
+						</div>
+					</div>
+				</label>
+
+				<MainMenu username={user.Username} />
+			</div>
+		{{ else }}
 		<!-- OTHERWISE, SHOW LOGIN LINK -->
 		<a href="/auth" class="m-0 mx-2 rounded p-0">
 			<p class="px-2 py-2 hover:underline">Login</p>
 		</a>
-		<!-- {/if} -->
+		{{ end }}
 
 		<!-- GITHUB BUTTON -->
 		<a

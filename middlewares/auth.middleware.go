@@ -25,3 +25,19 @@ func ProtectedRoute(c *fiber.Ctx) error {
 
 	return c.Next()
 }
+
+func OptionalProtectedRoute(c *fiber.Ctx) error {
+	sess, err := config.SessionStore.Get(c)
+	if err != nil {
+		return c.Next()
+	}
+
+	userID := sess.Get("ID")
+	if userID == nil {
+		return c.Next()
+	}
+
+	// save user id from session into local key value
+	c.Locals("userID", userID)
+	return c.Next()
+}

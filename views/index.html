@@ -7,7 +7,7 @@
 {{ end }}
 
 {{ define "Body" }}
-    {{ template "MainHeader" 0 }}
+    {{ template "MainHeader" . }}
     {{ template "MainHero" }}
 
     <!-- Projects Showcase -->
@@ -25,7 +25,7 @@
         </div>
 
     <div class="flex flex-col gap-8">
-        {{ range . }}
+        {{ range .ShowcaseData }}
         <div class="flex flex-col items-center gap-8 rounded-lg lg:flex-row">
             <div class="w-full lg:w-[400px]">
                 <div class="w-full lg:!w-[400px] swiffy-slider slider-item-ratio slider-item-ratio-16x9 w-full slider-nav-animation slider-nav-animation-fadein slider-nav-autoplay slider-nav-autopause slider-nav-mousedrag" data-slider-nav-autoplay-interval="3000">
@@ -33,7 +33,7 @@
                         {{ range .Images }}
                             <li>
                                 <img
-                                    src="{{ . }}" 
+                                    src={{ . }}
                                     class="h-[250px] w-[400px] object-cover"
                                     width="100"
                                     heigth="50"
@@ -63,7 +63,7 @@
                         <div class="mt-2 flex gap-3">
                             {{ range .Techs }}
                                 <img
-                                    src="{{ .URL }}"
+                                    src={{ .URL }}
                                     class="h-[25px] lg:h-[35px] object-cover"
                                     alt={{ .Title }}
                                     title={{ .Title }}
@@ -74,11 +74,11 @@
 
                     <div class="mt-2 flex gap-2">
                         {{ if .DemoURL }}
-                            <a href="{{ .DemoURL }}" target="_blank" class="btn">Demo</a>
+                            <a href={{ .DemoURL }} target="_blank" class="btn">Demo</a>
                         {{ end }}
 
                         {{ if .SourceURL }}
-                            <a href="{{ .SourceURL }}" target="_blank" class="btn">Source Code</a>
+                            <a href={{ .SourceURL }} target="_blank" class="btn">Source Code</a>
                         {{ end }}
                     </div>
                 </div>
