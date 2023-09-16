@@ -48,5 +48,5 @@ func ModuleInit(server *fiber.App, DB *gorm.DB) {
 	routes.InitUserRoute(server, &userHandler)
 	routes.InitBlogRoute(server, &blogHandler)
 	routes.InitParserRoute(server, &parserHandler)
-	routes.InitWebRoute(server, &userService)
+	routes.InitWebRoute(server, &userService, &blogService)
 }
