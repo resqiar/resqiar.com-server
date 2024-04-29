@@ -57,7 +57,13 @@ func main() {
 	libs.ModuleInit(server, DB)
 
 	PORT := os.Getenv("PORT")
-	if err := server.Listen(":" + PORT); err != nil {
-		log.Fatal(err)
+	if os.Getenv("ENV") != "prod" {
+		if err := server.Listen(":" + PORT); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		if err := server.ListenTLS(":443", os.Getenv("PUBLIC_CERT_PATH"), os.Getenv("PRIVATE_CERT_PATH")); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
