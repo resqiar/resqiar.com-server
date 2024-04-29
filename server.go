@@ -1,15 +1,14 @@
 package main
 
 import (
+	"log"
 	"os"
-	"time"
 
 	"resqiar.com-server/config"
 	"resqiar.com-server/db"
 	"resqiar.com-server/libs"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
@@ -38,14 +37,14 @@ func main() {
 	}))
 
 	// Setup caching
-	server.Use(cache.New(cache.Config{
-		Next: func(c *fiber.Ctx) bool {
-			URL := string(c.Request().URI().Path())
-			return libs.ShouldNotCached(URL)
-		},
-		Expiration:   30 * time.Minute,
-		CacheControl: true,
-	}))
+	// server.Use(cache.New(cache.Config{
+	// 	Next: func(c *fiber.Ctx) bool {
+	// 		URL := string(c.Request().URI().Path())
+	// 		return libs.ShouldNotCached(URL)
+	// 	},
+	// 	Expiration:   30 * time.Minute,
+	// 	CacheControl: true,
+	// }))
 
 	DB := db.InitDB() // init Postgres db
 	db.InitRedis()    // init Redis db
@@ -59,6 +58,6 @@ func main() {
 
 	PORT := os.Getenv("PORT")
 	if err := server.Listen(":" + PORT); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
