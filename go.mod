@@ -7,7 +7,7 @@ require (
 	github.com/go-playground/validator/v10 v10.14.0
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/gofiber/storage/redis/v2 v2.0.1
-	github.com/imagekit-developer/imagekit-go v0.0.0-20221027035115-2e643255882a
+	github.com/imagekit-developer/imagekit-go v0.0.0-20240521071536-1d7e6e67fcd7
 	github.com/jarcoal/httpmock v1.3.0
 	github.com/joho/godotenv v1.5.1
 	github.com/matoous/go-nanoid/v2 v2.0.0
