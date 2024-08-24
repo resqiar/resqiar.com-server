@@ -18,7 +18,7 @@ require (
 	go.abhg.dev/goldmark/anchor v0.1.1
 	golang.org/x/oauth2 v0.10.0
 	gorm.io/driver/postgres v1.5.0
-	gorm.io/gorm v1.25.1
+	gorm.io/gorm v1.25.11
 )
 
 require (
@@ -59,7 +59,7 @@ require (
 	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/validator.v2 v2.0.1 // indirect
